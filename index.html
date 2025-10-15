@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Công Cụ Chuyển Đổi Đa Năng</title>
-    <!-- Tích hợp Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tích hợp icon từ thư viện Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment-lunar@0.1.7/src/moment-lunar.min.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
@@ -23,27 +25,31 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-    <div class="max-w-xl w-full mx-auto bg-white rounded-xl shadow-lg">
-        <!-- Phần Tab điều hướng -->
+    <div class="max-w-3xl w-full mx-auto bg-white rounded-xl shadow-lg">
         <div class="border-b border-gray-200">
-            <nav class="-mb-px flex" aria-label="Tabs">
-                <button id="length-tab-btn" class="tab-active w-1/4 py-4 px-1 text-center border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+            <nav class="-mb-px flex text-center" aria-label="Tabs">
+                <button id="length-tab-btn" class="tab-active w-1/6 py-4 px-1 text-center border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
                     Độ dài
                 </button>
-                <button id="weight-tab-btn" class="w-1/4 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                <button id="weight-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
                     Khối lượng
                 </button>
-                <button id="volume-tab-btn" class="w-1/4 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                <button id="volume-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
                     Thể tích
                 </button>
-                <button id="currency-tab-btn" class="w-1/4 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                <button id="currency-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
                     Tiền tệ
+                </button>
+                 <button id="time-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                    Thời gian
+                </button>
+                <button id="calendar-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                    Lịch
                 </button>
             </nav>
         </div>
 
         <div class="p-6 md:p-8">
-            <!-- TAB 1: ĐỘ DÀI -->
             <div id="length-converter-tab">
                 <div class="flex items-center space-x-3 mb-6">
                     <div class="bg-green-500 text-white p-2 rounded-full"><i data-lucide="ruler"></i></div>
@@ -69,7 +75,6 @@
                 <div id="result-length" class="mt-8 text-center bg-green-50 p-6 rounded-xl hidden"></div>
             </div>
 
-            <!-- TAB 2: KHỐI LƯỢNG -->
             <div id="weight-converter-tab" class="hidden">
                 <div class="flex items-center space-x-3 mb-6">
                     <div class="bg-purple-500 text-white p-2 rounded-full"><i data-lucide="scale"></i></div>
@@ -95,7 +100,6 @@
                 <div id="result-weight" class="mt-8 text-center bg-purple-50 p-6 rounded-xl hidden"></div>
             </div>
 
-            <!-- TAB 3: THỂ TÍCH -->
             <div id="volume-converter-tab" class="hidden">
                  <div class="flex items-center space-x-3 mb-6">
                     <div class="bg-orange-500 text-white p-2 rounded-full"><i data-lucide="beaker"></i></div>
@@ -121,7 +125,6 @@
                 <div id="result-volume" class="mt-8 text-center bg-orange-50 p-6 rounded-xl hidden"></div>
             </div>
 
-            <!-- TAB 4: TIỀN TỆ -->
             <div id="currency-converter-tab" class="hidden">
                 <div class="flex items-center space-x-3 mb-6">
                     <div class="bg-blue-500 text-white p-2 rounded-full"><i data-lucide="arrow-right-left"></i></div>
@@ -146,12 +149,94 @@
                 </div>
                  <div class="mt-6 flex justify-center">
                     <button id="convert-currency-btn" class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
-                        Chuyển đổi
+                        Quy đổi
                     </button>
                 </div>
                 <div id="result-currency" class="mt-8 text-center bg-blue-50 p-6 rounded-xl hidden"></div>
                 <div id="error-currency" class="mt-6 text-center bg-red-50 p-4 rounded-lg hidden"></div>
             </div>
+
+            <div id="time-converter-tab" class="hidden">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="bg-indigo-500 text-white p-2 rounded-full"><i data-lucide="clock"></i></div>
+                    <h1 class="text-2xl font-bold text-gray-800">Chuyển đổi Thời gian</h1>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                    <div class="md:col-span-2">
+                        <label for="amount-time" class="block text-sm font-medium text-gray-700 mb-1">Giá trị</label>
+                        <input type="number" id="amount-time" value="3600" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="from-time" class="block text-sm font-medium text-gray-700 mb-1">Từ</label>
+                        <select id="from-time" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-indigo-500 focus:border-indigo-500"></select>
+                    </div>
+                    <div class="flex items-end justify-center h-full md:col-span-1">
+                         <button id="swap-time" class="w-full md:w-auto p-3 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-600" title="Đảo ngược đơn vị"><i data-lucide="repeat"></i></button>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="to-time" class="block text-sm font-medium text-gray-700 mb-1">Đến</label>
+                        <select id="to-time" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-indigo-500 focus:border-indigo-500"></select>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <span class="block text-sm font-medium text-gray-700 mb-2">Hiển thị kết quả:</span>
+                    <div class="flex space-x-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="time-display-mode" value="decimal" checked id="display-decimal" class="form-radio text-indigo-600 focus:ring-indigo-500" />
+                            <span class="ml-2 text-gray-700">Dạng Thập phân</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="time-display-mode" value="hms" id="display-hms" class="form-radio text-indigo-600 focus:ring-indigo-500" />
+                            <span class="ml-2 text-gray-700">Đơn vị Thời gian</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-center">
+                    <button id="convert-time-btn" class="w-full md:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                        Quy đổi
+                    </button>
+                </div>
+
+                <div id="result-time" class="mt-8 text-center bg-indigo-50 p-6 rounded-xl hidden"></div>
+            </div>
+
+            <div id="calendar-converter-tab" class="hidden">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="bg-red-500 text-white p-2 rounded-full"><i data-lucide="calendar"></i></div>
+                    <h1 class="text-2xl font-bold text-gray-800">Tra Cứu Lịch</h1>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label for="day-input" class="block text-sm font-medium text-gray-700 mb-1">Ngày</label>
+                        <input type="number" id="day-input" value="1" min="1" max="31" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-red-500 focus:border-red-500">
+                    </div>
+                    <div>
+                        <label for="month-input" class="block text-sm font-medium text-gray-700 mb-1">Tháng</label>
+                        <input type="number" id="month-input" value="1" min="1" max="12" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-red-500 focus:border-red-500">
+                    </div>
+                    <div>
+                        <label for="year-input" class="block text-sm font-medium text-gray-700 mb-1">Năm</label>
+                        <input type="number" id="year-input" value="2024" min="1900" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-red-500 focus:border-red-500">
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-center">
+                    <button id="convert-calendar-btn" class="w-full md:w-auto bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                        Tra cứu
+                    </button>
+                </div>
+                
+                <div id="result-calendar" class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div id="result-solar" class="text-center bg-blue-50 p-6 rounded-xl hidden"></div>
+                    <div id="result-lunar" class="text-center bg-red-50 p-6 rounded-xl hidden"></div>
+                </div>
+                <div id="error-calendar" class="mt-6 text-center bg-red-100 p-4 rounded-lg text-red-700 font-medium hidden"></div>
+
+            </div>
+
 
             <footer class="text-center mt-8 text-sm text-gray-500">
                 <p id="footer-text"></p>
@@ -161,19 +246,26 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Khởi tạo icons
+            lucide.createIcons();
+
             const footerText = document.getElementById('footer-text');
             // --- LOGIC CHUYỂN TAB ---
             const tabs = {
                 length: { btn: document.getElementById('length-tab-btn'), content: document.getElementById('length-converter-tab') },
                 weight: { btn: document.getElementById('weight-tab-btn'), content: document.getElementById('weight-converter-tab') },
                 volume: { btn: document.getElementById('volume-tab-btn'), content: document.getElementById('volume-converter-tab') },
-                currency: { btn: document.getElementById('currency-tab-btn'), content: document.getElementById('currency-converter-tab') }
+                currency: { btn: document.getElementById('currency-tab-btn'), content: document.getElementById('currency-converter-tab') },
+                time: { btn: document.getElementById('time-tab-btn'), content: document.getElementById('time-converter-tab') },
+                calendar: { btn: document.getElementById('calendar-tab-btn'), content: document.getElementById('calendar-converter-tab') } // Tab Lịch
             };
             const footerContent = {
                 length: 'Công cụ chuyển đổi độ dài.',
                 weight: 'Công cụ chuyển đổi khối lượng.',
                 volume: 'Công cụ chuyển đổi thể tích.',
-                currency: `Tỷ giá tiền tệ được cung cấp bởi <a href="https://www.exchangerate-api.com" target="_blank" class="text-blue-500 hover:underline">ExchangeRate-API</a>`
+                currency: `Tỷ giá tiền tệ được cung cấp bởi <a href="https://www.exchangerate-api.com" target="_blank" class="text-blue-500 hover:underline">ExchangeRate-API</a>`,
+                time: 'Công cụ chuyển đổi thời gian.',
+                calendar: 'Tra cứu Lịch Dương - Lịch Âm.' 
             };
 
             function switchTab(activeTabKey) {
@@ -187,11 +279,11 @@
             Object.keys(tabs).forEach(key => {
                 tabs[key].btn.addEventListener('click', () => switchTab(key));
             });
-            switchTab('length'); // Mặc định là tab Độ dài
+            switchTab('length'); 
 
-            // --- UNIVERSAL CONVERTER LOGIC ---
+            // --- UNIVERSAL CONVERTER LOGIC (Cho Length, Weight, Volume - Tự động) ---
             function setupConverter(config) {
-                const { amountInput, fromSelect, toSelect, swapBtn, resultDiv, units, baseUnit, resultColor, convertFn } = config;
+                const { amountInput, fromSelect, toSelect, swapBtn, resultDiv, units, resultColor, convertFn } = config;
                 
                 // Populate units
                 for (const unit in units) {
@@ -215,7 +307,7 @@
                     
                     resultDiv.classList.remove('hidden');
                     resultDiv.innerHTML = `
-                        <p class="text-lg text-gray-700">${amount.toLocaleString('vi-VN')} ${fromUnit} =</p>
+                        <p class="text-lg text-gray-700">${amount.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${fromUnit} =</p>
                         <p class="text-4xl font-bold ${resultColor} mt-2">${result.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${toUnit}</p>
                     `;
                 };
@@ -232,7 +324,52 @@
                 convert();
             }
 
-            // --- CÁC BỘ CHUYỂN ĐỔI ---
+            // --- HÀM HỖ TRỢ THỜI GIAN ---
+            const timeUnits = { 
+                's': { name: 'Giây', toSecond: 1 }, 
+                'min': { name: 'Phút', toSecond: 60 }, 
+                'h': { name: 'Giờ', toSecond: 3600 }, 
+                'd': { name: 'Ngày', toSecond: 86400 }, 
+                'w': { name: 'Tuần', toSecond: 604800 }
+            };
+
+            const timeConvertFn = (amount, from, to, units) => (amount * units[from].toSecond) / units[to].toSecond;
+            
+            const formatTimeUnits = (totalSeconds) => {
+                const sign = totalSeconds < 0 ? "-" : "";
+                totalSeconds = Math.abs(Math.round(totalSeconds));
+
+                if (totalSeconds === 0) return '0 giây';
+                
+                const units = [
+                    { label: 'năm', seconds: 31557600 },
+                    { label: 'tuần', seconds: 604800 },
+                    { label: 'ngày', seconds: 86400 },
+                    { label: 'giờ', seconds: 3600 },
+                    { label: 'phút', seconds: 60 },
+                    { label: 'giây', seconds: 1 }
+                ];
+                
+                let parts = [];
+                let remaining = totalSeconds;
+
+                for (const unit of units) {
+                    if (remaining >= unit.seconds) {
+                        const count = Math.floor(remaining / unit.seconds);
+                        parts.push(`${count} ${unit.label}`);
+                        remaining %= unit.seconds;
+                    }
+                }
+                
+                if (parts.length > 3) parts = parts.slice(0, 3);
+                if (parts.length === 0) parts.push('ít hơn 1 giây');
+                
+                return `${sign}${parts.join(', ')}`;
+            }
+
+
+            // --- CÁC BỘ CHUYỂN ĐỔI CHÍNH ---
+            
             // 1. Độ dài
             const lengthUnits = { 'mm': { name: 'Milimét', toMeter: 0.001 }, 'cm': { name: 'Centimét', toMeter: 0.01 }, 'm': { name: 'Mét', toMeter: 1 }, 'km': { name: 'Kilômét', toMeter: 1000 }, 'in': { name: 'Inch', toMeter: 0.0254 }, 'ft': { name: 'Foot', toMeter: 0.3048 }, 'yd': { name: 'Yard', toMeter: 0.9144 }, 'mi': { name: 'Dặm', toMeter: 1609.34 } };
             setupConverter({
@@ -309,7 +446,7 @@
                         const updateTime = new Date(data.time_last_update_unix * 1000);
                         
                         resultCurrencyDiv.innerHTML = `
-                            <p class="text-lg text-gray-700">${amount.toLocaleString('vi-VN')} ${from} =</p>
+                            <p class="text-lg text-gray-700">${amount.toLocaleString('vi-VN', { maximumFractionDigits: 2 })} ${from} =</p>
                             <p class="text-4xl font-bold text-blue-600 mt-2">${convertedAmount.toLocaleString('vi-VN', { maximumFractionDigits: 2 })} ${to}</p>
                             <p class="text-sm text-gray-500 mt-4">Tỷ giá cập nhật lúc: ${updateTime.toLocaleString('vi-VN')}</p>
                         `;
@@ -329,9 +466,161 @@
             convertCurrencyBtn.addEventListener('click', convertCurrency);
             populateCurrencies();
 
-            lucide.createIcons();
+
+            // 5. Thời gian
+            const amountTimeInput = document.getElementById('amount-time');
+            const fromTimeSelect = document.getElementById('from-time');
+            const toTimeSelect = document.getElementById('to-time');
+            const swapTimeBtn = document.getElementById('swap-time');
+            const convertTimeBtn = document.getElementById('convert-time-btn');
+            const resultTimeDiv = document.getElementById('result-time');
+            const timeDisplayRadios = document.querySelectorAll('input[name="time-display-mode"]');
+
+            // Populate units cho Time
+            for (const unit in timeUnits) {
+                const option = `<option value="${unit}">${timeUnits[unit].name} (${unit})</option>`;
+                fromTimeSelect.innerHTML += option;
+                toTimeSelect.innerHTML += option;
+            }
+            fromTimeSelect.value = 'min';
+            toTimeSelect.value = 's';
+
+
+            const convertTime = () => {
+                const amount = parseFloat(amountTimeInput.value);
+                if (isNaN(amount)) {
+                    resultTimeDiv.classList.add('hidden');
+                    return;
+                }
+                
+                const fromUnit = fromTimeSelect.value;
+                const toUnit = toTimeSelect.value;
+                const displayMode = document.querySelector('input[name="time-display-mode"]:checked').value;
+                
+                resultTimeDiv.classList.remove('hidden');
+
+                if (displayMode === 'decimal') {
+                    // Chế độ Dạng Thập phân
+                    const resultDecimal = timeConvertFn(amount, fromUnit, toUnit, timeUnits);
+                    
+                    resultTimeDiv.innerHTML = `
+                        <p class="text-lg text-gray-700">${amount.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${fromUnit} =</p>
+                        <p class="text-4xl font-bold text-indigo-600 mt-2">${resultDecimal.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${toUnit}</p>
+                    `;
+                } else {
+                    // Chế độ Đơn vị Thời gian
+                    const amountInSeconds = amount * timeUnits[fromUnit].toSecond;
+                    const formattedResult = formatTimeUnits(amountInSeconds);
+                    
+                    resultTimeDiv.innerHTML = `
+                        <p class="text-lg text-gray-700">${amount.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${fromUnit} =</p>
+                        <p class="text-3xl font-bold text-indigo-600 mt-2">${formattedResult}</p>
+                        <p class="text-sm text-gray-500 mt-2">(Tương đương ${timeConvertFn(amount, fromUnit, toUnit, timeUnits).toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${toUnit})</p>
+                    `;
+                }
+            };
+            
+            swapTimeBtn.addEventListener('click', () => {
+                [fromTimeSelect.value, toTimeSelect.value] = [toTimeSelect.value, fromTimeSelect.value];
+                convertTime();
+            });
+            
+            convertTimeBtn.addEventListener('click', convertTime);
+
+            timeDisplayRadios.forEach(radio => radio.addEventListener('change', convertTime));
+
+
+            // 6. Lịch
+            const dayInput = document.getElementById('day-input');
+            const monthInput = document.getElementById('month-input');
+            const yearInput = document.getElementById('year-input');
+            const convertCalendarBtn = document.getElementById('convert-calendar-btn');
+            const resultSolarDiv = document.getElementById('result-solar');
+            const resultLunarDiv = document.getElementById('result-lunar');
+            const errorCalendarDiv = document.getElementById('error-calendar');
+
+            const DAYS_OF_WEEK = ["Chủ nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+            
+            function convertCalendar() {
+                const day = parseInt(dayInput.value);
+                const month = parseInt(monthInput.value);
+                const year = parseInt(yearInput.value);
+
+                resultSolarDiv.classList.add('hidden');
+                resultLunarDiv.classList.add('hidden');
+                errorCalendarDiv.classList.add('hidden');
+
+                if (isNaN(day) || isNaN(month) || isNaN(year) || day < 1 || month < 1 || month > 12 || year < 1) {
+                    errorCalendarDiv.textContent = "Vui lòng nhập Ngày, Tháng, Năm hợp lệ (số nguyên dương).";
+                    errorCalendarDiv.classList.remove('hidden');
+                    return;
+                }
+                
+                try {
+                    // 1. Chuyển đổi Dương Lịch (Date chuẩn JS)
+                    const solarDate = new Date(year, month - 1, day);
+                    
+                    // Kiểm tra tính hợp lệ của ngày tháng (ví dụ: ngày 30/2 không tồn tại)
+                    if (solarDate.getFullYear() !== year || solarDate.getMonth() !== month - 1 || solarDate.getDate() !== day) {
+                        throw new Error(`Ngày ${day} tháng ${month} năm ${year} không hợp lệ.`);
+                    }
+
+                    const dayOfWeek = DAYS_OF_WEEK[solarDate.getDay()];
+                    
+                    const solarHtml = `
+                        <h2 class="text-2xl font-semibold text-blue-800 mb-2">Dương Lịch</h2>
+                        <p class="text-3xl font-bold text-blue-600">${dayOfWeek}</p>
+                        <p class="text-xl mt-1">${day} tháng ${month} năm ${year}</p>
+                    `;
+                    resultSolarDiv.innerHTML = solarHtml;
+                    resultSolarDiv.classList.remove('hidden');
+
+
+                    // 2. Chuyển đổi Âm Lịch (Sử dụng Moment-Lunar)
+                    if (typeof moment === 'undefined' || typeof moment.lunar === 'undefined') {
+                        // Đây là lỗi sẽ hiển thị nếu thư viện không tải được
+                        throw new Error("Lỗi: Thư viện Lịch Âm (moment-lunar.js) chưa được tải thành công. Vui lòng kiểm tra kết nối mạng hoặc chuyển sang sử dụng file cục bộ.");
+                    }
+                    
+                    // Tạo đối tượng Moment từ ngày Dương lịch
+                    const m = moment(solarDate);
+                    
+                    // Chuyển đổi sang Âm lịch
+                    const lunar = m.toLunar(); 
+                    
+                    const canChiYear = lunar.canChiYear;
+                    const canChiMonth = lunar.canChiMonth;
+                    const canChiDay = lunar.canChiDay;
+
+                    // Lấy Tên con vật theo năm
+                    const animal = lunar.animal;
+                    
+                    const lunarHtml = `
+                        <h2 class="text-2xl font-semibold text-red-800 mb-2">Âm Lịch</h2>
+                        <p class="text-3xl font-bold text-red-600">${dayOfWeek}</p>
+                        <p class="text-xl mt-1">Ngày ${lunar.date} tháng ${lunar.month}${lunar.isLeap ? ' (Nhuận)' : ''} năm ${lunar.year}</p>
+                        <p class="text-base text-gray-600 mt-2">(Năm **${canChiYear}** (${animal}), Tháng **${canChiMonth}**, Ngày **${canChiDay}**)</p>
+                    `;
+                    resultLunarDiv.innerHTML = lunarHtml;
+                    resultLunarDiv.classList.remove('hidden');
+
+                } catch (e) {
+                    errorCalendarDiv.textContent = `Lỗi: ${e.message}`;
+                    errorCalendarDiv.classList.remove('hidden');
+                }
+            }
+
+            // Gắn sự kiện cho nút Quy đổi/Tra cứu
+            convertCalendarBtn.addEventListener('click', convertCalendar);
+            
+            // Thiết lập giá trị mặc định là ngày hiện tại và tra cứu lần đầu
+            const today = new Date();
+            dayInput.value = today.getDate();
+            monthInput.value = today.getMonth() + 1;
+            yearInput.value = today.getFullYear();
+            convertCalendar();
+
         });
     </script>
 </body>
 </html>
-
