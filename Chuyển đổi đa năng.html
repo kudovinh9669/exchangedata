@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Cụ Chuyển Đổi Đa Năng</title>
+    <!-- Tích hợp Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tích hợp icon từ thư viện Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style cho tab đang hoạt động */
+        .tab-active {
+            border-color: #3b82f6; /* border-blue-500 */
+            color: #3b82f6; /* text-blue-500 */
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="max-w-xl w-full mx-auto bg-white rounded-xl shadow-lg">
+        <!-- Phần Tab điều hướng -->
+        <div class="border-b border-gray-200">
+            <nav class="-mb-px flex" aria-label="Tabs">
+                <button id="length-tab-btn" class="tab-active w-1/4 py-4 px-1 text-center border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                    Độ dài
+                </button>
+                <button id="weight-tab-btn" class="w-1/4 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                    Khối lượng
+                </button>
+                <button id="volume-tab-btn" class="w-1/4 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                    Thể tích
+                </button>
+                <button id="currency-tab-btn" class="w-1/4 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                    Tiền tệ
+                </button>
+            </nav>
+        </div>
+
+        <div class="p-6 md:p-8">
+            <!-- TAB 1: ĐỘ DÀI -->
+            <div id="length-converter-tab">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="bg-green-500 text-white p-2 rounded-full"><i data-lucide="ruler"></i></div>
+                    <h1 class="text-2xl font-bold text-gray-800">Chuyển đổi Độ dài</h1>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                    <div class="md:col-span-2">
+                        <label for="amount-length" class="block text-sm font-medium text-gray-700 mb-1">Giá trị</label>
+                        <input type="number" id="amount-length" value="1" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="from-length" class="block text-sm font-medium text-gray-700 mb-1">Từ</label>
+                        <select id="from-length" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-green-500 focus:border-green-500"></select>
+                    </div>
+                    <div class="flex items-end justify-center h-full md:col-span-1">
+                         <button id="swap-length" class="w-full md:w-auto p-3 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-600" title="Đảo ngược đơn vị"><i data-lucide="repeat"></i></button>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="to-length" class="block text-sm font-medium text-gray-700 mb-1">Đến</label>
+                        <select id="to-length" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-green-500 focus:border-green-500"></select>
+                    </div>
+                </div>
+                <div id="result-length" class="mt-8 text-center bg-green-50 p-6 rounded-xl hidden"></div>
+            </div>
+
+            <!-- TAB 2: KHỐI LƯỢNG -->
+            <div id="weight-converter-tab" class="hidden">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="bg-purple-500 text-white p-2 rounded-full"><i data-lucide="scale"></i></div>
+                    <h1 class="text-2xl font-bold text-gray-800">Chuyển đổi Khối lượng</h1>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                    <div class="md:col-span-2">
+                        <label for="amount-weight" class="block text-sm font-medium text-gray-700 mb-1">Giá trị</label>
+                        <input type="number" id="amount-weight" value="1" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="from-weight" class="block text-sm font-medium text-gray-700 mb-1">Từ</label>
+                        <select id="from-weight" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-purple-500 focus:border-purple-500"></select>
+                    </div>
+                    <div class="flex items-end justify-center h-full md:col-span-1">
+                         <button id="swap-weight" class="w-full md:w-auto p-3 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-600" title="Đảo ngược đơn vị"><i data-lucide="repeat"></i></button>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="to-weight" class="block text-sm font-medium text-gray-700 mb-1">Đến</label>
+                        <select id="to-weight" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-purple-500 focus:border-purple-500"></select>
+                    </div>
+                </div>
+                <div id="result-weight" class="mt-8 text-center bg-purple-50 p-6 rounded-xl hidden"></div>
+            </div>
+
+            <!-- TAB 3: THỂ TÍCH -->
+            <div id="volume-converter-tab" class="hidden">
+                 <div class="flex items-center space-x-3 mb-6">
+                    <div class="bg-orange-500 text-white p-2 rounded-full"><i data-lucide="beaker"></i></div>
+                    <h1 class="text-2xl font-bold text-gray-800">Chuyển đổi Thể tích</h1>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                    <div class="md:col-span-2">
+                        <label for="amount-volume" class="block text-sm font-medium text-gray-700 mb-1">Giá trị</label>
+                        <input type="number" id="amount-volume" value="1" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="from-volume" class="block text-sm font-medium text-gray-700 mb-1">Từ</label>
+                        <select id="from-volume" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-orange-500 focus:border-orange-500"></select>
+                    </div>
+                    <div class="flex items-end justify-center h-full md:col-span-1">
+                         <button id="swap-volume" class="w-full md:w-auto p-3 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-600" title="Đảo ngược đơn vị"><i data-lucide="repeat"></i></button>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="to-volume" class="block text-sm font-medium text-gray-700 mb-1">Đến</label>
+                        <select id="to-volume" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-orange-500 focus:border-orange-500"></select>
+                    </div>
+                </div>
+                <div id="result-volume" class="mt-8 text-center bg-orange-50 p-6 rounded-xl hidden"></div>
+            </div>
+
+            <!-- TAB 4: TIỀN TỆ -->
+            <div id="currency-converter-tab" class="hidden">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="bg-blue-500 text-white p-2 rounded-full"><i data-lucide="arrow-right-left"></i></div>
+                    <h1 class="text-2xl font-bold text-gray-800">Chuyển đổi tiền tệ</h1>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                    <div class="md:col-span-2">
+                        <label for="amount-currency" class="block text-sm font-medium text-gray-700 mb-1">Số tiền</label>
+                        <input type="number" id="amount-currency" value="100" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="from-currency" class="block text-sm font-medium text-gray-700 mb-1">Từ</label>
+                        <select id="from-currency" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"></select>
+                    </div>
+                    <div class="flex items-end justify-center h-full md:col-span-1">
+                         <button id="swap-currency" class="w-full md:w-auto p-3 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-600" title="Đảo ngược tiền tệ"><i data-lucide="repeat"></i></button>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="to-currency" class="block text-sm font-medium text-gray-700 mb-1">Đến</label>
+                        <select id="to-currency" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"></select>
+                    </div>
+                </div>
+                 <div class="mt-6 flex justify-center">
+                    <button id="convert-currency-btn" class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                        Chuyển đổi
+                    </button>
+                </div>
+                <div id="result-currency" class="mt-8 text-center bg-blue-50 p-6 rounded-xl hidden"></div>
+                <div id="error-currency" class="mt-6 text-center bg-red-50 p-4 rounded-lg hidden"></div>
+            </div>
+
+            <footer class="text-center mt-8 text-sm text-gray-500">
+                <p id="footer-text"></p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const footerText = document.getElementById('footer-text');
+            // --- LOGIC CHUYỂN TAB ---
+            const tabs = {
+                length: { btn: document.getElementById('length-tab-btn'), content: document.getElementById('length-converter-tab') },
+                weight: { btn: document.getElementById('weight-tab-btn'), content: document.getElementById('weight-converter-tab') },
+                volume: { btn: document.getElementById('volume-tab-btn'), content: document.getElementById('volume-converter-tab') },
+                currency: { btn: document.getElementById('currency-tab-btn'), content: document.getElementById('currency-converter-tab') }
+            };
+            const footerContent = {
+                length: 'Công cụ chuyển đổi độ dài.',
+                weight: 'Công cụ chuyển đổi khối lượng.',
+                volume: 'Công cụ chuyển đổi thể tích.',
+                currency: `Tỷ giá tiền tệ được cung cấp bởi <a href="https://www.exchangerate-api.com" target="_blank" class="text-blue-500 hover:underline">ExchangeRate-API</a>`
+            };
+
+            function switchTab(activeTabKey) {
+                Object.keys(tabs).forEach(key => {
+                    const isActive = key === activeTabKey;
+                    tabs[key].btn.classList.toggle('tab-active', isActive);
+                    tabs[key].content.classList.toggle('hidden', !isActive);
+                });
+                footerText.innerHTML = footerContent[activeTabKey];
+            }
+            Object.keys(tabs).forEach(key => {
+                tabs[key].btn.addEventListener('click', () => switchTab(key));
+            });
+            switchTab('length'); // Mặc định là tab Độ dài
+
+            // --- UNIVERSAL CONVERTER LOGIC ---
+            function setupConverter(config) {
+                const { amountInput, fromSelect, toSelect, swapBtn, resultDiv, units, baseUnit, resultColor, convertFn } = config;
+                
+                // Populate units
+                for (const unit in units) {
+                    const option = `<option value="${unit}">${units[unit].name} (${unit})</option>`;
+                    fromSelect.innerHTML += option;
+                    toSelect.innerHTML += option;
+                }
+                fromSelect.value = config.defaultFrom;
+                toSelect.value = config.defaultTo;
+                
+                // Conversion logic
+                const convert = () => {
+                    const amount = parseFloat(amountInput.value);
+                    if (isNaN(amount)) {
+                        resultDiv.classList.add('hidden');
+                        return;
+                    }
+                    const fromUnit = fromSelect.value;
+                    const toUnit = toSelect.value;
+                    const result = convertFn(amount, fromUnit, toUnit, units);
+                    
+                    resultDiv.classList.remove('hidden');
+                    resultDiv.innerHTML = `
+                        <p class="text-lg text-gray-700">${amount.toLocaleString('vi-VN')} ${fromUnit} =</p>
+                        <p class="text-4xl font-bold ${resultColor} mt-2">${result.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${toUnit}</p>
+                    `;
+                };
+
+                const swap = () => {
+                    [fromSelect.value, toSelect.value] = [toSelect.value, fromSelect.value];
+                    convert();
+                };
+
+                amountInput.addEventListener('input', convert);
+                fromSelect.addEventListener('change', convert);
+                toSelect.addEventListener('change', convert);
+                swapBtn.addEventListener('click', swap);
+                convert();
+            }
+
+            // --- CÁC BỘ CHUYỂN ĐỔI ---
+            // 1. Độ dài
+            const lengthUnits = { 'mm': { name: 'Milimét', toMeter: 0.001 }, 'cm': { name: 'Centimét', toMeter: 0.01 }, 'm': { name: 'Mét', toMeter: 1 }, 'km': { name: 'Kilômét', toMeter: 1000 }, 'in': { name: 'Inch', toMeter: 0.0254 }, 'ft': { name: 'Foot', toMeter: 0.3048 }, 'yd': { name: 'Yard', toMeter: 0.9144 }, 'mi': { name: 'Dặm', toMeter: 1609.34 } };
+            setupConverter({
+                amountInput: document.getElementById('amount-length'), fromSelect: document.getElementById('from-length'), toSelect: document.getElementById('to-length'), swapBtn: document.getElementById('swap-length'), resultDiv: document.getElementById('result-length'),
+                units: lengthUnits, defaultFrom: 'm', defaultTo: 'cm', resultColor: 'text-green-600',
+                convertFn: (amount, from, to, units) => (amount * units[from].toMeter) / units[to].toMeter
+            });
+
+            // 2. Khối lượng
+            const weightUnits = { 'mg': { name: 'Miligram', toKg: 1e-6 }, 'g': { name: 'Gram', toKg: 0.001 }, 'kg': { name: 'Kilogram', toKg: 1 }, 't': { name: 'Tấn', toKg: 1000 }, 'oz': { name: 'Ounce', toKg: 0.0283495 }, 'lb': { name: 'Pound', toKg: 0.453592 } };
+             setupConverter({
+                amountInput: document.getElementById('amount-weight'), fromSelect: document.getElementById('from-weight'), toSelect: document.getElementById('to-weight'), swapBtn: document.getElementById('swap-weight'), resultDiv: document.getElementById('result-weight'),
+                units: weightUnits, defaultFrom: 'kg', defaultTo: 'g', resultColor: 'text-purple-600',
+                convertFn: (amount, from, to, units) => (amount * units[from].toKg) / units[to].toKg
+            });
+
+            // 3. Thể tích
+            const volumeUnits = { 'ml': { name: 'Mililít', toLiter: 0.001 }, 'l': { name: 'Lít', toLiter: 1 }, 'm3': { name: 'Mét khối', toLiter: 1000 }, 'oz_fl': { name: 'Fluid Ounce (US)', toLiter: 0.0295735 }, 'gal': { name: 'Gallon (US)', toLiter: 3.78541 } };
+            setupConverter({
+                amountInput: document.getElementById('amount-volume'), fromSelect: document.getElementById('from-volume'), toSelect: document.getElementById('to-volume'), swapBtn: document.getElementById('swap-volume'), resultDiv: document.getElementById('result-volume'),
+                units: volumeUnits, defaultFrom: 'l', defaultTo: 'ml', resultColor: 'text-orange-600',
+                convertFn: (amount, from, to, units) => (amount * units[from].toLiter) / units[to].toLiter
+            });
+
+            // 4. Tiền tệ
+            const amountCurrencyInput = document.getElementById('amount-currency');
+            const fromCurrencySelect = document.getElementById('from-currency');
+            const toCurrencySelect = document.getElementById('to-currency');
+            const swapCurrencyBtn = document.getElementById('swap-currency');
+            const convertCurrencyBtn = document.getElementById('convert-currency-btn');
+            const resultCurrencyDiv = document.getElementById('result-currency');
+            const errorCurrencyDiv = document.getElementById('error-currency');
+            const apiKey = '87372f0f0f69d53b5958b6c2';
+
+            async function populateCurrencies() {
+                try {
+                    const response = await fetch(`https://v6.exchangerate-api.com/v6/${apiKey}/latest/USD`);
+                    if (!response.ok) throw new Error('Lỗi mạng.');
+                    const data = await response.json();
+                    if(data.result === 'success') {
+                        const currencies = Object.keys(data.conversion_rates);
+                        currencies.forEach(currency => {
+                            fromCurrencySelect.innerHTML += `<option value="${currency}">${currency}</option>`;
+                            toCurrencySelect.innerHTML += `<option value="${currency}">${currency}</option>`;
+                        });
+                        fromCurrencySelect.value = 'USD';
+                        toCurrencySelect.value = 'VND';
+                    } else { showErrorCurrency('Lỗi API.'); }
+                } catch (error) { showErrorCurrency(error.message); }
+            }
+
+            async function convertCurrency() {
+                const amount = parseFloat(amountCurrencyInput.value);
+                const from = fromCurrencySelect.value;
+                const to = toCurrencySelect.value;
+
+                if (isNaN(amount) || amount <= 0) {
+                    resultCurrencyDiv.classList.add('hidden');
+                    return;
+                }
+                
+                resultCurrencyDiv.classList.remove('hidden');
+                resultCurrencyDiv.innerHTML = `<p class="text-gray-600">Đang tính toán...</p>`;
+                errorCurrencyDiv.classList.add('hidden');
+
+                try {
+                    const response = await fetch(`https://v6.exchangerate-api.com/v6/${apiKey}/latest/${from}`);
+                    if (!response.ok) throw new Error('Không thể lấy tỷ giá.');
+                    const data = await response.json();
+
+                    if (data.result === 'success') {
+                        const rate = data.conversion_rates[to];
+                        const convertedAmount = (amount * rate);
+                        const updateTime = new Date(data.time_last_update_unix * 1000);
+                        
+                        resultCurrencyDiv.innerHTML = `
+                            <p class="text-lg text-gray-700">${amount.toLocaleString('vi-VN')} ${from} =</p>
+                            <p class="text-4xl font-bold text-blue-600 mt-2">${convertedAmount.toLocaleString('vi-VN', { maximumFractionDigits: 2 })} ${to}</p>
+                            <p class="text-sm text-gray-500 mt-4">Tỷ giá cập nhật lúc: ${updateTime.toLocaleString('vi-VN')}</p>
+                        `;
+                    } else { showErrorCurrency('Không tìm thấy tỷ giá.'); }
+                } catch (error) { showErrorCurrency(error.message); }
+            }
+            
+            function showErrorCurrency(message) {
+                resultCurrencyDiv.classList.add('hidden');
+                errorCurrencyDiv.classList.remove('hidden');
+                errorCurrencyDiv.innerHTML = `<p class="text-red-600 font-medium">Lỗi: ${message}. Vui lòng thử lại.</p>`;
+            }
+            
+            swapCurrencyBtn.addEventListener('click', () => {
+                [fromCurrencySelect.value, toCurrencySelect.value] = [toCurrencySelect.value, fromCurrencySelect.value];
+            });
+            convertCurrencyBtn.addEventListener('click', convertCurrency);
+            populateCurrencies();
+
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
+
