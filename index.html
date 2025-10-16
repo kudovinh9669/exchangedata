@@ -5,225 +5,250 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Công Cụ Chuyển Đổi Đa Năng</title>
+    <script>
+        // Script chạy sớm để ngăn chặn flash of unstyled content (FOUC)
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Cấu hình Tailwind CSS để hỗ trợ Dark Mode thủ công bằng class 'dark'
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Style cho tab đang hoạt động */
+        /* Style Dark Mode cho các thành phần không được định nghĩa bằng Tailwind */
         .tab-active {
             border-color: #3b82f6; /* border-blue-500 */
             color: #3b82f6; /* text-blue-500 */
             font-weight: 600;
         }
+        .dark .tab-active {
+            border-color: #60a5fa; /* border-blue-400 */
+            color: #60a5fa; /* text-blue-400 */
+        }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center min-h-screen p-4 transition-colors duration-300">
 
-    <div class="max-w-xl w-full mx-auto bg-white rounded-xl shadow-lg">
-        <div class="border-b border-gray-200">
+    <div class="max-w-xl w-full mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-2xl">
+        
+        <button id="theme-toggle" class="absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-full text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 shadow hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-300 z-10">
+            <i id="theme-icon" data-lucide="moon" class="w-6 h-6"></i>
+        </button>
+
+        <div class="border-b border-gray-200 dark:border-gray-700">
             <nav class="-mb-px flex" aria-label="Tabs">
-                <button id="length-tab-btn" class="tab-active w-1/6 py-4 px-1 text-center border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                <button id="length-tab-btn" class="tab-active w-1/6 py-4 px-1 text-center border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500 focus:outline-none transition">
                     Độ dài
                 </button>
-                <button id="weight-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                <button id="weight-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500 focus:outline-none transition">
                     Khối lượng
                 </button>
-                <button id="volume-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                <button id="volume-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500 focus:outline-none transition">
                     Thể tích
                 </button>
-                <button id="currency-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                <button id="currency-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500 focus:outline-none transition">
                     Tiền tệ
                 </button>
-                <button id="time-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                <button id="time-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500 focus:outline-none transition">
                     Thời gian
                 </button>
-                <button id="calendar-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition">
+                <button id="calendar-tab-btn" class="w-1/6 py-4 px-1 text-center border-b-2 border-transparent font-medium text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500 focus:outline-none transition">
                     Lịch
                 </button>
-                </nav>
+            </nav>
         </div>
 
         <div class="p-6 md:p-8">
             <div id="length-converter-tab">
                 <div class="flex items-center space-x-3 mb-6">
                     <div class="bg-green-500 text-white p-2 rounded-full"><i data-lucide="ruler"></i></div>
-                    <h1 class="text-2xl font-bold text-gray-800">Chuyển đổi Độ dài</h1>
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Chuyển đổi Độ dài</h1>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                     <div class="md:col-span-2">
-                        <label for="amount-length" class="block text-sm font-medium text-gray-700 mb-1">Giá trị</label>
-                        <input type="number" id="amount-length" value="1" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-green-500 focus:border-green-500">
+                        <label for="amount-length" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Giá trị</label>
+                        <input type="number" id="amount-length" value="1" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-green-500 focus:border-green-500">
                     </div>
                     <div class="md:col-span-2">
-                        <label for="from-length" class="block text-sm font-medium text-gray-700 mb-1">Từ</label>
-                        <select id="from-length" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-green-500 focus:border-green-500"></select>
+                        <label for="from-length" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Từ</label>
+                        <select id="from-length" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-green-500 focus:border-green-500"></select>
                     </div>
                     <div class="flex items-end justify-center h-full md:col-span-1">
-                        <button id="swap-length" class="w-full md:w-auto p-3 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-600" title="Đảo ngược đơn vị"><i data-lucide="repeat"></i></button>
+                         <button id="swap-length" class="w-full md:w-auto p-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg text-gray-600 dark:text-gray-300" title="Đảo ngược đơn vị"><i data-lucide="repeat"></i></button>
                     </div>
                     <div class="md:col-span-2">
-                        <label for="to-length" class="block text-sm font-medium text-gray-700 mb-1">Đến</label>
-                        <select id="to-length" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-green-500 focus:border-green-500"></select>
+                        <label for="to-length" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Đến</label>
+                        <select id="to-length" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-green-500 focus:border-green-500"></select>
                     </div>
                 </div>
-                <div id="result-length" class="mt-8 text-center bg-green-50 p-6 rounded-xl hidden"></div>
+                <div id="result-length" class="mt-8 text-center bg-green-50 dark:bg-green-900/50 p-6 rounded-xl hidden"></div>
             </div>
 
             <div id="weight-converter-tab" class="hidden">
                 <div class="flex items-center space-x-3 mb-6">
                     <div class="bg-purple-500 text-white p-2 rounded-full"><i data-lucide="scale"></i></div>
-                    <h1 class="text-2xl font-bold text-gray-800">Chuyển đổi Khối lượng</h1>
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Chuyển đổi Khối lượng</h1>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                     <div class="md:col-span-2">
-                        <label for="amount-weight" class="block text-sm font-medium text-gray-700 mb-1">Giá trị</label>
-                        <input type="number" id="amount-weight" value="1" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-purple-500 focus:border-purple-500">
+                        <label for="amount-weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Giá trị</label>
+                        <input type="number" id="amount-weight" value="1" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500">
                     </div>
                     <div class="md:col-span-2">
-                        <label for="from-weight" class="block text-sm font-medium text-gray-700 mb-1">Từ</label>
-                        <select id="from-weight" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-purple-500 focus:border-purple-500"></select>
+                        <label for="from-weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Từ</label>
+                        <select id="from-weight" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"></select>
                     </div>
                     <div class="flex items-end justify-center h-full md:col-span-1">
-                        <button id="swap-weight" class="w-full md:w-auto p-3 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-600" title="Đảo ngược đơn vị"><i data-lucide="repeat"></i></button>
+                         <button id="swap-weight" class="w-full md:w-auto p-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg text-gray-600 dark:text-gray-300" title="Đảo ngược đơn vị"><i data-lucide="repeat"></i></button>
                     </div>
                     <div class="md:col-span-2">
-                        <label for="to-weight" class="block text-sm font-medium text-gray-700 mb-1">Đến</label>
-                        <select id="to-weight" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-purple-500 focus:border-purple-500"></select>
+                        <label for="to-weight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Đến</label>
+                        <select id="to-weight" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"></select>
                     </div>
                 </div>
-                <div id="result-weight" class="mt-8 text-center bg-purple-50 p-6 rounded-xl hidden"></div>
+                <div id="result-weight" class="mt-8 text-center bg-purple-50 dark:bg-purple-900/50 p-6 rounded-xl hidden"></div>
             </div>
 
             <div id="volume-converter-tab" class="hidden">
-                <div class="flex items-center space-x-3 mb-6">
+                 <div class="flex items-center space-x-3 mb-6">
                     <div class="bg-orange-500 text-white p-2 rounded-full"><i data-lucide="beaker"></i></div>
-                    <h1 class="text-2xl font-bold text-gray-800">Chuyển đổi Thể tích</h1>
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Chuyển đổi Thể tích</h1>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                     <div class="md:col-span-2">
-                        <label for="amount-volume" class="block text-sm font-medium text-gray-700 mb-1">Giá trị</label>
-                        <input type="number" id="amount-volume" value="1" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-orange-500 focus:border-orange-500">
+                        <label for="amount-volume" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Giá trị</label>
+                        <input type="number" id="amount-volume" value="1" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-orange-500 focus:border-orange-500">
                     </div>
                     <div class="md:col-span-2">
-                        <label for="from-volume" class="block text-sm font-medium text-gray-700 mb-1">Từ</label>
-                        <select id="from-volume" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-orange-500 focus:border-orange-500"></select>
+                        <label for="from-volume" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Từ</label>
+                        <select id="from-volume" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-orange-500 focus:border-orange-500"></select>
                     </div>
                     <div class="flex items-end justify-center h-full md:col-span-1">
-                        <button id="swap-volume" class="w-full md:w-auto p-3 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-600" title="Đảo ngược đơn vị"><i data-lucide="repeat"></i></button>
+                         <button id="swap-volume" class="w-full md:w-auto p-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg text-gray-600 dark:text-gray-300" title="Đảo ngược đơn vị"><i data-lucide="repeat"></i></button>
                     </div>
                     <div class="md:col-span-2">
-                        <label for="to-volume" class="block text-sm font-medium text-gray-700 mb-1">Đến</label>
-                        <select id="to-volume" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-orange-500 focus:border-orange-500"></select>
+                        <label for="to-volume" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Đến</label>
+                        <select id="to-volume" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-orange-500 focus:border-orange-500"></select>
                     </div>
                 </div>
-                <div id="result-volume" class="mt-8 text-center bg-orange-50 p-6 rounded-xl hidden"></div>
+                <div id="result-volume" class="mt-8 text-center bg-orange-50 dark:bg-orange-900/50 p-6 rounded-xl hidden"></div>
             </div>
 
             <div id="currency-converter-tab" class="hidden">
                 <div class="flex items-center space-x-3 mb-6">
                     <div class="bg-blue-500 text-white p-2 rounded-full"><i data-lucide="arrow-right-left"></i></div>
-                    <h1 class="text-2xl font-bold text-gray-800">Chuyển đổi tiền tệ</h1>
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Chuyển đổi tiền tệ</h1>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                     <div class="md:col-span-2">
-                        <label for="amount-currency" class="block text-sm font-medium text-gray-700 mb-1">Số tiền</label>
-                        <input type="number" id="amount-currency" value="100" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500">
+                        <label for="amount-currency" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Số tiền</label>
+                        <input type="number" id="amount-currency" value="100" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div class="md:col-span-2">
-                        <label for="from-currency" class="block text-sm font-medium text-gray-700 mb-1">Từ</label>
-                        <select id="from-currency" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"></select>
+                        <label for="from-currency" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Từ</label>
+                        <select id="from-currency" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"></select>
                     </div>
                     <div class="flex items-end justify-center h-full md:col-span-1">
-                        <button id="swap-currency" class="w-full md:w-auto p-3 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-600" title="Đảo ngược tiền tệ"><i data-lucide="repeat"></i></button>
+                         <button id="swap-currency" class="w-full md:w-auto p-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg text-gray-600 dark:text-gray-300" title="Đảo ngược tiền tệ"><i data-lucide="repeat"></i></button>
                     </div>
                     <div class="md:col-span-2">
-                        <label for="to-currency" class="block text-sm font-medium text-gray-700 mb-1">Đến</label>
-                        <select id="to-currency" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"></select>
+                        <label for="to-currency" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Đến</label>
+                        <select id="to-currency" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"></select>
                     </div>
                 </div>
-                <div class="mt-6 flex justify-center">
-                    <button id="convert-currency-btn" class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                 <div class="mt-6 flex justify-center">
+                    <button id="convert-currency-btn" class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
                         Quy đổi
                     </button>
                 </div>
-                <div id="result-currency" class="mt-8 text-center bg-blue-50 p-6 rounded-xl hidden"></div>
-                <div id="error-currency" class="mt-6 text-center bg-red-50 p-4 rounded-lg hidden"></div>
+                <div id="result-currency" class="mt-8 text-center bg-blue-50 dark:bg-blue-900/50 p-6 rounded-xl hidden"></div>
+                <div id="error-currency" class="mt-6 text-center bg-red-50 dark:bg-red-900/50 p-4 rounded-lg hidden"></div>
             </div>
 
             <div id="time-converter-tab" class="hidden">
                 <div class="flex items-center space-x-3 mb-6">
                     <div class="bg-indigo-500 text-white p-2 rounded-full"><i data-lucide="clock"></i></div>
-                    <h1 class="text-2xl font-bold text-gray-800">Chuyển đổi Thời gian</h1>
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Chuyển đổi Thời gian</h1>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                     <div class="md:col-span-2">
-                        <label for="amount-time" class="block text-sm font-medium text-gray-700 mb-1">Giá trị</label>
-                        <input type="number" id="amount-time" value="3600" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        <label for="amount-time" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Giá trị</label>
+                        <input type="number" id="amount-time" value="3600" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
                     <div class="md:col-span-2">
-                        <label for="from-time" class="block text-sm font-medium text-gray-700 mb-1">Từ</label>
-                        <select id="from-time" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-indigo-500 focus:border-indigo-500"></select>
+                        <label for="from-time" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Từ</label>
+                        <select id="from-time" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"></select>
                     </div>
                     <div class="flex items-end justify-center h-full md:col-span-1">
-                        <button id="swap-time" class="w-full md:w-auto p-3 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-600" title="Đảo ngược đơn vị"><i data-lucide="repeat"></i></button>
+                        <button id="swap-time" class="w-full md:w-auto p-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg text-gray-600 dark:text-gray-300" title="Đảo ngược đơn vị"><i data-lucide="repeat"></i></button>
                     </div>
                     <div class="md:col-span-2">
-                        <label for="to-time" class="block text-sm font-medium text-gray-700 mb-1">Đến</label>
-                        <select id="to-time" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-indigo-500 focus:border-indigo-500"></select>
+                        <label for="to-time" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Đến</label>
+                        <select id="to-time" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"></select>
                     </div>
                 </div>
 
                 <div class="mt-6">
-                    <span class="block text-sm font-medium text-gray-700 mb-2">Hiển thị kết quả:</span>
+                    <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hiển thị kết quả:</span>
                     <div class="flex space-x-4">
                         <label class="inline-flex items-center">
                             <input type="radio" name="time-display-mode" value="decimal" checked id="display-decimal" class="form-radio text-indigo-600 focus:ring-indigo-500" />
-                            <span class="ml-2 text-gray-700">Dạng Thập phân</span>
+                            <span class="ml-2 text-gray-700 dark:text-gray-300">Dạng Thập phân</span>
                         </label>
                         <label class="inline-flex items-center">
                             <input type="radio" name="time-display-mode" value="hms" id="display-hms" class="form-radio text-indigo-600 focus:ring-indigo-500" />
-                            <span class="ml-2 text-gray-700">Đơn vị Thời gian</span>
+                            <span class="ml-2 text-gray-700 dark:text-gray-300">Đơn vị Thời gian</span>
                         </label>
                     </div>
                 </div>
 
                 <div class="mt-6 flex justify-center">
-                    <button id="convert-time-btn" class="w-full md:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                    <button id="convert-time-btn" class="w-full md:w-auto bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
                         Quy đổi
                     </button>
                 </div>
 
-                <div id="result-time" class="mt-8 text-center bg-indigo-50 p-6 rounded-xl hidden"></div>
+                <div id="result-time" class="mt-8 text-center bg-indigo-50 dark:bg-indigo-900/50 p-6 rounded-xl hidden"></div>
             </div>
-
+            
             <div id="calendar-converter-tab" class="hidden">
                 <div class="flex items-center space-x-3 mb-6">
                     <div class="bg-red-500 text-white p-2 rounded-full"><i data-lucide="calendar"></i></div>
-                    <h1 class="text-2xl font-bold text-gray-800">Công cụ Lịch & Ngày</h1>
+                    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Công cụ Lịch & Ngày</h1>
                 </div>
-
-                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                    <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Tính khoảng cách ngày (Dương lịch)</h2>
+                
+                <div class="bg-white dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm">
+                    <h2 class="text-xl font-semibold text-gray-700 dark:text-white mb-4 border-b dark:border-gray-600 pb-2">Tính khoảng cách ngày (Dương lịch)</h2>
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                         <div class="md:col-span-2">
-                            <label for="date-from-calendar" class="block text-sm font-medium text-gray-700 mb-1">Ngày Bắt đầu</label>
-                            <input type="date" id="date-from-calendar" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-red-500 focus:border-red-500">
+                            <label for="date-from-calendar" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ngày Bắt đầu</label>
+                            <input type="date" id="date-from-calendar" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-red-500 focus:border-red-500">
                         </div>
                         <div class="md:col-span-2">
-                            <label for="date-to-calendar" class="block text-sm font-medium text-gray-700 mb-1">Ngày Kết thúc</label>
-                            <input type="date" id="date-to-calendar" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-lg focus:ring-red-500 focus:border-red-500">
+                            <label for="date-to-calendar" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ngày Kết thúc</label>
+                            <input type="date" id="date-to-calendar" class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-red-500 focus:border-red-500">
                         </div>
                         <div class="flex items-end justify-center h-full md:col-span-1">
-                            <button id="calculate-date-btn" class="w-full md:w-auto p-3 bg-red-500 hover:bg-red-600 rounded-lg text-white font-bold" title="Tính toán"><i data-lucide="calculator"></i></button>
+                            <button id="calculate-date-btn" class="w-full md:w-auto p-3 bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 rounded-lg text-white font-bold" title="Tính toán"><i data-lucide="calculator"></i></button>
                         </div>
                     </div>
-                    <div id="result-calendar" class="mt-6 text-center bg-red-50 p-6 rounded-xl hidden"></div>
+                    <div id="result-calendar" class="mt-6 text-center bg-red-50 dark:bg-red-900/50 p-6 rounded-xl hidden"></div>
                 </div>
             </div>
-            <footer class="text-center mt-8 text-sm text-gray-500">
+
+            <footer class="text-center mt-8 text-sm text-gray-500 dark:text-gray-500">
                 <p id="footer-text"></p>
             </footer>
         </div>
@@ -239,9 +264,7 @@
                 volume: { btn: document.getElementById('volume-tab-btn'), content: document.getElementById('volume-converter-tab') },
                 currency: { btn: document.getElementById('currency-tab-btn'), content: document.getElementById('currency-converter-tab') },
                 time: { btn: document.getElementById('time-tab-btn'), content: document.getElementById('time-converter-tab') },
-                // THÊM TAB MỚI
                 calendar: { btn: document.getElementById('calendar-tab-btn'), content: document.getElementById('calendar-converter-tab') }
-                // KẾT THÚC THÊM TAB MỚI
             };
             const footerContent = {
                 length: 'Công cụ chuyển đổi độ dài.',
@@ -249,9 +272,7 @@
                 volume: 'Công cụ chuyển đổi thể tích.',
                 currency: `Tỷ giá tiền tệ được cung cấp bởi <a href="https://www.exchangerate-api.com" target="_blank" class="text-blue-500 hover:underline">ExchangeRate-API</a>`,
                 time: 'Công cụ chuyển đổi thời gian.',
-                // THÊM FOOTER CHO TAB MỚI
                 calendar: 'Công cụ tính toán khoảng cách giữa hai ngày Dương lịch.'
-                // KẾT THÚC THÊM FOOTER CHO TAB MỚI
             };
 
             function switchTab(activeTabKey) {
@@ -267,11 +288,41 @@
             });
             switchTab('length');
 
+            // --- LOGIC DARK MODE (MỚI) ---
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            const htmlTag = document.documentElement;
+
+            const updateThemeIcon = (isDark) => {
+                // Xóa icon cũ và thêm icon mới
+                themeIcon.innerHTML = '';
+                if (isDark) {
+                    themeIcon.setAttribute('data-lucide', 'sun');
+                } else {
+                    themeIcon.setAttribute('data-lucide', 'moon');
+                }
+                lucide.createIcons(); // Phải gọi lại để render icon mới
+            };
+            
+            // Khởi tạo trạng thái icon ban đầu
+            updateThemeIcon(htmlTag.classList.contains('dark'));
+
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = htmlTag.classList.toggle('dark');
+                
+                if (isDark) {
+                    localStorage.theme = 'dark';
+                } else {
+                    localStorage.theme = 'light';
+                }
+                updateThemeIcon(isDark);
+            });
+            // --- KẾT THÚC LOGIC DARK MODE ---
+
             // --- UNIVERSAL CONVERTER LOGIC (Cho Length, Weight, Volume - Tự động) ---
             function setupConverter(config) {
                 const { amountInput, fromSelect, toSelect, swapBtn, resultDiv, units, resultColor, convertFn } = config;
 
-                // Populate units
                 for (const unit in units) {
                     const option = `<option value="${unit}">${units[unit].name} (${unit})</option>`;
                     fromSelect.innerHTML += option;
@@ -280,7 +331,6 @@
                 fromSelect.value = config.defaultFrom;
                 toSelect.value = config.defaultTo;
 
-                // Conversion logic
                 const convert = () => {
                     const amount = parseFloat(amountInput.value);
                     if (isNaN(amount)) {
@@ -291,10 +341,13 @@
                     const toUnit = toSelect.value;
                     const result = convertFn(amount, fromUnit, toUnit, units);
 
+                    // Cập nhật màu sắc kết quả theo chế độ sáng/tối
+                    const resultColorClass = htmlTag.classList.contains('dark') ? resultColor.replace('600', '400') : resultColor;
+
                     resultDiv.classList.remove('hidden');
                     resultDiv.innerHTML = `
-                        <p class="text-lg text-gray-700">${amount.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${fromUnit} =</p>
-                        <p class="text-4xl font-bold ${resultColor} mt-2">${result.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${toUnit}</p>
+                        <p class="text-lg text-gray-700 dark:text-gray-200">${amount.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${fromUnit} =</p>
+                        <p class="text-4xl font-bold ${resultColorClass} mt-2">${result.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${toUnit}</p>
                     `;
                 };
 
@@ -309,37 +362,22 @@
                 swapBtn.addEventListener('click', swap);
                 convert();
             }
-
+            
             // --- HÀM HỖ TRỢ THỜI GIAN ---
             const timeUnits = {
-                's': { name: 'Giây', toSecond: 1 },
-                'min': { name: 'Phút', toSecond: 60 },
-                'h': { name: 'Giờ', toSecond: 3600 },
-                'd': { name: 'Ngày', toSecond: 86400 },
-                'w': { name: 'Tuần', toSecond: 604800 }
+                's': { name: 'Giây', toSecond: 1 }, 'min': { name: 'Phút', toSecond: 60 }, 'h': { name: 'Giờ', toSecond: 3600 },
+                'd': { name: 'Ngày', toSecond: 86400 }, 'w': { name: 'Tuần', toSecond: 604800 }
             };
 
             const timeConvertFn = (amount, from, to, units) => (amount * units[from].toSecond) / units[to].toSecond;
-
-            // Hàm định dạng Giờ/Phút/Giây (Đơn vị Thời gian)
+            
             const formatTimeUnits = (totalSeconds) => {
                 const sign = totalSeconds < 0 ? "-" : "";
-                totalSeconds = Math.abs(Math.round(totalSeconds)); // Làm tròn và lấy giá trị tuyệt đối
-
+                totalSeconds = Math.abs(Math.round(totalSeconds));
                 if (totalSeconds === 0) return '0 giây';
-
-                const units = [
-                    { label: 'năm', seconds: 31557600 }, // 365.25 ngày
-                    { label: 'tuần', seconds: 604800 },
-                    { label: 'ngày', seconds: 86400 },
-                    { label: 'giờ', seconds: 3600 },
-                    { label: 'phút', seconds: 60 },
-                    { label: 'giây', seconds: 1 }
-                ];
-
+                const units = [{ label: 'năm', seconds: 31557600 }, { label: 'tuần', seconds: 604800 }, { label: 'ngày', seconds: 86400 }, { label: 'giờ', seconds: 3600 }, { label: 'phút', seconds: 60 }, { label: 'giây', seconds: 1 }];
                 let parts = [];
                 let remaining = totalSeconds;
-
                 for (const unit of units) {
                     if (remaining >= unit.seconds) {
                         const count = Math.floor(remaining / unit.seconds);
@@ -347,12 +385,10 @@
                         remaining %= unit.seconds;
                     }
                 }
-
-                // Giới hạn hiển thị 3 đơn vị lớn nhất (ví dụ: 1 ngày, 5 giờ, 2 phút)
                 if (parts.length > 3) parts = parts.slice(0, 3);
-
                 return `${sign}${parts.join(', ')}`;
             }
+
 
             // --- CÁC BỘ CHUYỂN ĐỔI CHÍNH ---
 
@@ -380,7 +416,7 @@
                 convertFn: (amount, from, to, units) => (amount * units[from].toLiter) / units[to].toLiter
             });
 
-            // 4. Tiền tệ (Đã thêm nút Quy đổi)
+            // 4. Tiền tệ
             const amountCurrencyInput = document.getElementById('amount-currency');
             const fromCurrencySelect = document.getElementById('from-currency');
             const toCurrencySelect = document.getElementById('to-currency');
@@ -418,7 +454,7 @@
                 }
 
                 resultCurrencyDiv.classList.remove('hidden');
-                resultCurrencyDiv.innerHTML = `<p class="text-gray-600">Đang tính toán...</p>`;
+                resultCurrencyDiv.innerHTML = `<p class="text-gray-600 dark:text-gray-300">Đang tính toán...</p>`;
                 errorCurrencyDiv.classList.add('hidden');
 
                 try {
@@ -431,10 +467,13 @@
                         const convertedAmount = (amount * rate);
                         const updateTime = new Date(data.time_last_update_unix * 1000);
 
+                        // Cập nhật màu chữ cho Dark Mode
+                        const resultColorClass = htmlTag.classList.contains('dark') ? 'text-blue-400' : 'text-blue-600';
+
                         resultCurrencyDiv.innerHTML = `
-                            <p class="text-lg text-gray-700">${amount.toLocaleString('vi-VN', { maximumFractionDigits: 2 })} ${from} =</p>
-                            <p class="text-4xl font-bold text-blue-600 mt-2">${convertedAmount.toLocaleString('vi-VN', { maximumFractionDigits: 2 })} ${to}</p>
-                            <p class="text-sm text-gray-500 mt-4">Tỷ giá cập nhật lúc: ${updateTime.toLocaleString('vi-VN')}</p>
+                            <p class="text-lg text-gray-700 dark:text-gray-200">${amount.toLocaleString('vi-VN', { maximumFractionDigits: 2 })} ${from} =</p>
+                            <p class="text-4xl font-bold ${resultColorClass} mt-2">${convertedAmount.toLocaleString('vi-VN', { maximumFractionDigits: 2 })} ${to}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">Tỷ giá cập nhật lúc: ${updateTime.toLocaleString('vi-VN')}</p>
                         `;
                     } else { showErrorCurrency('Không tìm thấy tỷ giá.'); }
                 } catch (error) { showErrorCurrency(error.message); }
@@ -443,17 +482,17 @@
             function showErrorCurrency(message) {
                 resultCurrencyDiv.classList.add('hidden');
                 errorCurrencyDiv.classList.remove('hidden');
-                errorCurrencyDiv.innerHTML = `<p class="text-red-600 font-medium">Lỗi: ${message}. Vui lòng thử lại.</p>`;
+                errorCurrencyDiv.innerHTML = `<p class="text-red-600 dark:text-red-400 font-medium">Lỗi: ${message}. Vui lòng thử lại.</p>`;
             }
 
             swapCurrencyBtn.addEventListener('click', () => {
                 [fromCurrencySelect.value, toCurrencySelect.value] = [toCurrencySelect.value, fromCurrencySelect.value];
             });
-            convertCurrencyBtn.addEventListener('click', convertCurrency); // Gắn sự kiện cho nút Quy đổi
+            convertCurrencyBtn.addEventListener('click', convertCurrency);
             populateCurrencies();
 
 
-            // 5. Thời gian (ĐÃ SỬA LOGIC) - KHÔNG SỬA ĐOẠN NÀY THEO YÊU CẦU
+            // 5. Thời gian
             const amountTimeInput = document.getElementById('amount-time');
             const fromTimeSelect = document.getElementById('from-time');
             const toTimeSelect = document.getElementById('to-time');
@@ -462,7 +501,6 @@
             const resultTimeDiv = document.getElementById('result-time');
             const timeDisplayRadios = document.querySelectorAll('input[name="time-display-mode"]');
 
-            // Populate units cho Time
             for (const unit in timeUnits) {
                 const option = `<option value="${unit}">${timeUnits[unit].name} (${unit})</option>`;
                 fromTimeSelect.innerHTML += option;
@@ -484,88 +522,86 @@
                 const displayMode = document.querySelector('input[name="time-display-mode"]:checked').value;
 
                 resultTimeDiv.classList.remove('hidden');
+                
+                const resultColorClass = htmlTag.classList.contains('dark') ? 'text-indigo-400' : 'text-indigo-600';
+
 
                 if (displayMode === 'decimal') {
-                    // Chế độ Dạng Thập phân: Hiển thị kết quả dưới dạng đơn vị đích (có thể có số thập phân)
                     const resultDecimal = timeConvertFn(amount, fromUnit, toUnit, timeUnits);
 
                     resultTimeDiv.innerHTML = `
-                        <p class="text-lg text-gray-700">${amount.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${fromUnit} =</p>
-                        <p class="text-4xl font-bold text-indigo-600 mt-2">${resultDecimal.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${toUnit}</p>
+                        <p class="text-lg text-gray-700 dark:text-gray-200">${amount.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${fromUnit} =</p>
+                        <p class="text-4xl font-bold ${resultColorClass} mt-2">${resultDecimal.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${toUnit}</p>
                     `;
                 } else {
-                    // Chế độ Đơn vị Thời gian: Chuyển đổi sang giây và định dạng lại (Giờ/Phút/Giây/...)
                     const amountInSeconds = amount * timeUnits[fromUnit].toSecond;
                     const formattedResult = formatTimeUnits(amountInSeconds);
 
                     resultTimeDiv.innerHTML = `
-                        <p class="text-lg text-gray-700">${amount.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${fromUnit} =</p>
-                        <p class="text-3xl font-bold text-indigo-600 mt-2">${formattedResult}</p>
-                        <p class="text-sm text-gray-500 mt-2">(Tương đương ${timeConvertFn(amount, fromUnit, toUnit, timeUnits).toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${toUnit})</p>
+                        <p class="text-lg text-gray-700 dark:text-gray-200">${amount.toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${fromUnit} =</p>
+                        <p class="text-3xl font-bold ${resultColorClass} mt-2">${formattedResult}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">(Tương đương ${timeConvertFn(amount, fromUnit, toUnit, timeUnits).toLocaleString('vi-VN', { maximumFractionDigits: 6 })} ${toUnit})</p>
                     `;
                 }
             };
 
             swapTimeBtn.addEventListener('click', () => {
                 [fromTimeSelect.value, toTimeSelect.value] = [toTimeSelect.value, fromTimeSelect.value];
-                convertTime(); // Chạy lại hàm convert sau khi swap để cập nhật hiển thị
+                convertTime();
             });
 
-            convertTimeBtn.addEventListener('click', convertTime); // Gắn sự kiện cho nút Quy đổi
+            convertTimeBtn.addEventListener('click', convertTime);
 
-            timeDisplayRadios.forEach(radio => radio.addEventListener('change', convertTime)); // Cập nhật ngay khi đổi chế độ hiển thị
+            timeDisplayRadios.forEach(radio => radio.addEventListener('change', convertTime));
 
-            // Chạy lần đầu để thiết lập
             convertTime();
-            // KẾT THÚC KHU VỰC KHÔNG ĐƯỢC PHÉP SỬA
 
-            // --- BẮT ĐẦU LOGIC MỚI CHO LỊCH/NGÀY ---
+
+            // 6. Lịch (Calendar)
             const dateFromInput = document.getElementById('date-from-calendar');
             const dateToInput = document.getElementById('date-to-calendar');
             const calculateDateBtn = document.getElementById('calculate-date-btn');
             const resultCalendarDiv = document.getElementById('result-calendar');
 
             const calculateDateDifference = () => {
-                // Lấy giá trị ngày từ input
                 const dateFrom = new Date(dateFromInput.value);
                 const dateTo = new Date(dateToInput.value);
 
-                // Kiểm tra tính hợp lệ của ngày
                 if (isNaN(dateFrom) || isNaN(dateTo) || !dateFromInput.value || !dateToInput.value) {
                     resultCalendarDiv.classList.add('hidden');
                     return;
                 }
 
-                // Đặt thời gian về giữa ngày (12:00:00) để tránh lỗi lệch múi giờ khi tính toán
-                // Phải tạo Date object mới từ giá trị ISO để tránh thay đổi giá trị gốc nếu cần
                 const d1 = new Date(dateFromInput.value);
                 const d2 = new Date(dateToInput.value);
+                // Đặt giờ về trưa để tránh lỗi lệch múi giờ
                 d1.setHours(12, 0, 0, 0);
                 d2.setHours(12, 0, 0, 0);
 
-                // Tính toán khoảng cách thời gian (miligiây) và chuyển sang ngày
                 const timeDiff = Math.abs(d2.getTime() - d1.getTime());
-                // Cộng thêm 1 để tính luôn ngày bắt đầu và ngày kết thúc
-                const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)); // Khoảng cách ngày tuyệt đối
+                const dayCount = timeDiff / (1000 * 3600 * 24);
 
-                // Lấy tên ngày trong tuần (thứ hai, thứ ba,...)
                 const options = { weekday: 'long' };
                 const dayFrom = d1.toLocaleDateString('vi-VN', options);
                 const dayTo = d2.toLocaleDateString('vi-VN', options);
 
                 let resultHtml = '';
                 const formatOptions = { day: 'numeric', month: 'numeric', year: 'numeric' };
+                
+                // Cập nhật màu chữ cho Dark Mode
+                const resultColorClass = htmlTag.classList.contains('dark') ? 'text-red-400' : 'text-red-700';
+                const textColorClass = htmlTag.classList.contains('dark') ? 'text-gray-200' : 'text-gray-700';
+                const subTextColorClass = htmlTag.classList.contains('dark') ? 'text-gray-400' : 'text-gray-500';
+
 
                 if (d1.getTime() === d2.getTime()) {
-                    resultHtml = `<p class="text-xl font-bold text-red-700">Hai ngày giống nhau.</p>`;
+                    resultHtml = `<p class="text-xl font-bold ${resultColorClass}">Hai ngày giống nhau.</p>`;
                 } else {
-                    const dayCount = (d2.getTime() > d1.getTime() ? d2.getTime() - d1.getTime() : d1.getTime() - d2.getTime()) / (1000 * 3600 * 24);
-
                     resultHtml = `
-                        <p class="text-lg text-gray-700">Khoảng thời gian từ ${d1.toLocaleDateString('vi-VN', formatOptions)} đến ${d2.toLocaleDateString('vi-VN', formatOptions)} là:</p>
-                        <p class="text-4xl font-bold text-red-700 mt-2">${dayCount.toLocaleString('vi-VN')} ngày</p>
-                        <p class="text-sm text-gray-500 mt-4">Ngày bắt đầu (${d1.toLocaleDateString('vi-VN')}): ${dayFrom}</p>
-                        <p class="text-sm text-gray-500">Ngày kết thúc (${d2.toLocaleDateString('vi-VN')}): ${dayTo}</p>
+                        <p class="text-lg ${textColorClass}">Khoảng thời gian từ ${d1.toLocaleDateString('vi-VN', formatOptions)} đến ${d2.toLocaleDateString('vi-VN', formatOptions)} là:</p>
+                        <p class="text-4xl font-bold ${resultColorClass} mt-2">${dayCount.toLocaleString('vi-VN')} ngày</p>
+                        <p class="text-sm ${subTextColorClass} mt-4">Ngày bắt đầu (${d1.toLocaleDateString('vi-VN')}): ${dayFrom}</p>
+                        <p class="text-sm ${subTextColorClass}">Ngày kết thúc (${d2.toLocaleDateString('vi-VN')}): ${dayTo}</p>
                     `;
                 }
 
@@ -573,9 +609,8 @@
                 resultCalendarDiv.innerHTML = resultHtml;
             };
 
+            // Gắn sự kiện CHỈ CHO NÚT CLICK
             calculateDateBtn.addEventListener('click', calculateDateDifference);
-            dateFromInput.addEventListener('change', calculateDateDifference);
-            dateToInput.addEventListener('change', calculateDateDifference);
 
             // Thiết lập ngày mặc định (Hôm nay và 10 ngày sau)
             const today = new Date();
@@ -584,14 +619,8 @@
             dateFromInput.value = today.toISOString().split('T')[0];
             dateToInput.value = tomorrow.toISOString().split('T')[0];
 
-            // Chạy lần đầu để hiển thị kết quả mặc định
-            calculateDateDifference();
-            // --- KẾT THÚC LOGIC MỚI CHO LỊCH/NGÀY ---
-
             lucide.createIcons();
         });
     </script>
 </body>
 </html>
-
-
