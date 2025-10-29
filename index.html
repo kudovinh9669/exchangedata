@@ -4,7 +4,7 @@
 <link rel="icon" type="image/png" href="icon.png" sizes="48x48">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Exchange Tool v2</title>
+<title>Toolkit • Full All-in-one</title>
 <style>
   :root{
     --bg:#0b1220; --panel:#101a2b; --text:#e7edf7; --muted:#97a4be;
@@ -94,7 +94,7 @@
       <button class="tab-btn" data-tab="tab-speed">Tốc độ</button>
       <button class="tab-btn" data-tab="tab-pressure">Áp suất</button>
       <button class="tab-btn" data-tab="tab-energy">Năng lượng</button>
-      <button class="tab-btn" data-tab="tab-currency">Tiền tệ</button>
+      <button class="tab-btn" data-tab="tab-currency">Tiền tệ (Realtime)</button>
       <button class="tab-btn" data-tab="tab-temp">Nhiệt độ</button>
       <button class="tab-btn" data-tab="tab-bmi">BMI</button>
       <button class="tab-btn" data-tab="tab-percent">Phần trăm</button>
@@ -380,21 +380,61 @@
         </div>
       </section>
 
-      <!-- ========== Khoản vay (mới) ========== -->
-      <section class="tab-panel" id="tab-loan" hidden>
-        <div class="card">
-          <div class="title"><span class="dot" style="background:#22c55e"></span><h3 style="margin:0">Tính khoản vay (bảng khấu hao)</h3></div>
-          <div class="row">
-            <div><label>Tiền vay (VND)</label><input id="loanP" type="number" value="100000000" step="1000"></div>
-            <div><label>Lãi suất năm (%)</label><input id="loanR" type="number" value="10" step="0.01"></div>
-            <div><label>Kỳ hạn (tháng)</label><input id="loanN" type="number" value="60"></div>
-            <div><label class="muted" style="visibility:hidden">_</label><button id="loanCalc" class="btn">Tính</button></div>
-          </div>
-          <div id="loanOut" class="result"></div>
-          <div id="loanTableWrap"></div>
-          <div class="hist"><b>Lịch sử</b><ul id="loanHist"></ul></div>
-        </div>
-      </section>
+<!-- ========== Khoản vay (mới) ========== -->
+<section class="tab-panel" id="tab-loan" hidden>
+  <div class="card">
+    <div class="title"><span class="dot" style="background:#22c55e"></span><h3 style="margin:0">Tính khoản vay (bảng khấu hao)</h3></div>
+
+    <div class="row">
+      <div>
+        <label>Tiền vay (VND)</label>
+        <input id="loanP" type="number" value="100000000" step="1000">
+      </div>
+
+      <div>
+        <label>Lãi suất</label>
+        <input id="loanR" type="number" value="10" step="0.01">
+      </div>
+      <div>
+        <label>Đơn vị lãi suất</label>
+        <select id="loanRUnit">
+          <option value="y" selected>theo Năm</option>
+          <option value="mo">theo Tháng</option>
+          <option value="wk">theo Tuần</option>
+          <option value="d">theo Ngày</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Kỳ hạn (số)</label>
+        <input id="loanN" type="number" value="60">
+      </div>
+      <div>
+        <label>Đơn vị kỳ hạn</label>
+        <select id="loanNUnit">
+          <option value="mo" selected>Tháng</option>
+          <option value="wk">Tuần</option>
+          <option value="d">Ngày</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="muted" style="visibility:hidden">_</label>
+        <button id="loanCalc" class="btn">Tính</button>
+      </div>
+    </div>
+
+    <div class="status" id="loanMeta" style="margin-top:4px"></div>
+    <div id="loanOut" class="result"></div>
+    <div id="loanTableWrap"></div>
+
+    <div class="hist">
+      <b>Lịch sử</b>
+      <ul id="loanHist"></ul>
+    </div>
+  </div>
+</section>
+
 
       <!-- ========== Tuổi & Countdown (mới) ========== -->
       <section class="tab-panel" id="tab-age" hidden>
@@ -663,37 +703,119 @@ $('dCalc').addEventListener('click',()=>{
   $('dTo').value  =`${de.getFullYear()}-${String(de.getMonth()+1).padStart(2,'0')}-${String(de.getDate()).padStart(2,'0')}`;
 })();
 
-/* ===== Khoản vay ===== */
-function loanPMT(P, rY, nM){const rM=rY/12/100; return rM===0? P/nM : P*rM/ (1-Math.pow(1+rM,-nM));}
-function loanAmort(P,rY,nM){
-  const rM=rY/12/100, pmt=loanPMT(P,rY,nM);
-  let bal=P, rows=[];
-  for(let k=1;k<=nM;k++){
-    const interest=bal*rM;
-    const principal=Math.min(pmt-interest, bal);
-    bal=Math.max(0, bal-principal);
-    rows.push({k, payment:pmt, interest, principal, balance:bal});
-  }
-  return {pmt, rows};
+/* ===== Khoản vay (hỗ trợ ngày/tuần/tháng) ===== */
+const PERIODS_PER_YEAR = { mo:12, wk:52, d:365 };
+const UNIT_LABEL = { mo:'tháng', wk:'tuần', d:'ngày' };
+
+/** PMT theo chu kỳ thanh toán (đã quy về lãi suất/chu kỳ rP và số kỳ n) */
+function pmtByPeriod(P, rP, n){
+  return rP === 0 ? P / n : P * rP / (1 - Math.pow(1 + rP, -n));
 }
-$('loanCalc').addEventListener('click',()=>{
-  const P=+$('loanP').value, r=+$('loanR').value, n=+$('loanN').value;
-  if(!(P>0&&n>0)){ setResult($('loanOut'),'Vui lòng nhập tiền vay & kỳ hạn hợp lệ.',false); return;}
-  const {pmt, rows}=loanAmort(P,r,n);
-  const totI=rows.reduce((s,x)=>s+x.interest,0), totP=rows.reduce((s,x)=>s+x.principal,0);
-  setResult($('loanOut'),`
-    Khoản trả hàng tháng: <b>${pmt.toLocaleString('vi-VN',{maximumFractionDigits:0})} VND</b><br>
-    Tổng gốc trả: <b>${totP.toLocaleString('vi-VN')}</b> • Tổng lãi: <b class="warn">${totI.toLocaleString('vi-VN')}</b> • Tổng chi: <b>${(totP+totI).toLocaleString('vi-VN')}</b>
-  `);
-  pushHist('loan',`P=${P.toLocaleString('vi-VN')} | r=${r}% | n=${n}m • PMT≈${pmt.toLocaleString('vi-VN')}`,'loanHist');
-  const wrap=$('loanTableWrap');
-  const head=`<table><thead><tr><th>Kỳ</th><th>Trả</th><th>Lãi</th><th>Gốc</th><th>Dư nợ</th></tr></thead><tbody>`;
-  const fmt=r=>`<tr><td>${r.k}</td><td>${r.payment.toLocaleString('vi-VN',{maximumFractionDigits:0})}</td><td>${r.interest.toLocaleString('vi-VN',{maximumFractionDigits:0})}</td><td>${r.principal.toLocaleString('vi-VN',{maximumFractionDigits:0})}</td><td>${r.balance.toLocaleString('vi-VN',{maximumFractionDigits:0})}</td></tr>`;
-  const first=rows.slice(0,3).map(fmt).join(''); const last=rows.slice(-3).map(fmt).join('');
-  wrap.innerHTML=head+first+`<tr><td colspan="5" style="text-align:center;color:var(--muted)">...</td></tr>`+last+`</tbody></table>
-  <div style="margin-top:8px"><button id="loanExpand" class="btn">Hiển thị toàn bộ bảng (${rows.length} dòng)</button></div>`;
-  $('loanExpand').onclick=()=>{wrap.innerHTML=head+rows.map(fmt).join('')+`</tbody></table>`;}
+
+/** Lập bảng khấu hao theo chu kỳ đã chọn */
+function amortizeByPeriod(P, rP, n){
+  const pay = pmtByPeriod(P, rP, n);
+  let bal = P;
+  const rows = [];
+  for (let k = 1; k <= n; k++) {
+    const interest = bal * rP;
+    const principal = Math.min(pay - interest, bal);
+    bal = Math.max(0, bal - principal);
+    rows.push({ k, payment: pay, interest, principal, balance: bal });
+  }
+  return { payment: pay, rows };
+}
+
+/** Quy đổi lãi suất nhập vào về lãi suất năm (dạng thập phân) */
+function toAnnualRate(rateValue, rateUnit){
+  const r = rateValue / 100;     // 10% -> 0.10
+  if (rateUnit === 'y')  return r;
+  if (rateUnit === 'mo') return r * 12;
+  if (rateUnit === 'wk') return r * 52;
+  if (rateUnit === 'd')  return r * 365;
+  return r;
+}
+
+/** Quy đổi số kỳ hạn về số NĂM */
+function termToYears(term, unit){
+  if (unit === 'mo') return term / 12;
+  if (unit === 'wk') return term / 52;
+  if (unit === 'd')  return term / 365;
+  return term; // dự phòng
+}
+
+function fmtVN0(x){ return x.toLocaleString('vi-VN', { maximumFractionDigits:0 }); }
+
+document.getElementById('loanCalc').addEventListener('click', () => {
+  const P       = +document.getElementById('loanP').value;
+  const rateVal = +document.getElementById('loanR').value;
+  const rateUni = document.getElementById('loanRUnit').value; // y/mo/wk/d
+  const termVal = +document.getElementById('loanN').value;
+  const termUni = document.getElementById('loanNUnit').value; // mo/wk/d
+
+  if (!(P > 0 && termVal > 0)) {
+    setResult(document.getElementById('loanOut'), 'Vui lòng nhập tiền vay & kỳ hạn hợp lệ.', false);
+    return;
+  }
+
+  // Quy đổi về “chu kỳ thanh toán” = đúng theo đơn vị kỳ hạn bạn chọn
+  const periodsPerYear = PERIODS_PER_YEAR[termUni];
+  const annualRate     = toAnnualRate(rateVal, rateUni);
+  const rP             = annualRate / periodsPerYear;                 // lãi suất mỗi kỳ
+  const years          = termToYears(termVal, termUni);
+  const n              = Math.round(years * periodsPerYear);          // số kỳ thanh toán
+
+  // Khấu hao
+  const { payment, rows } = amortizeByPeriod(P, rP, n);
+
+  // Tổng hợp
+  const totI = rows.reduce((s,r)=>s+r.interest,0);
+  const totP = rows.reduce((s,r)=>s+r.principal,0);
+
+  // Meta mô tả
+  document.getElementById('loanMeta').textContent =
+    `Chu kỳ thanh toán: mỗi ${UNIT_LABEL[termUni]} • Lãi/chu kỳ ≈ ${(rP*100).toFixed(4)}% • Số kỳ: ${n}`;
+
+  setResult(
+    document.getElementById('loanOut'),
+    `Khoản trả mỗi ${UNIT_LABEL[termUni]}: <b>${fmtVN0(payment)} VND</b><br>
+     Tổng gốc trả: <b>${fmtVN0(totP)}</b> • Tổng lãi: <b class="warn">${fmtVN0(totI)}</b> • Tổng chi: <b>${fmtVN0(totP+totI)}</b>`
+  );
+
+  pushHist('loan',
+    `P=${fmtVN0(P)} | r=${rateVal}%/${rateUni} | n=${termVal}${termUni} → pay≈${fmtVN0(payment)}`,
+    'loanHist'
+  );
+
+  // Bảng khấu hao (rút gọn + nút mở rộng)
+  const wrap = document.getElementById('loanTableWrap');
+  const head = `<table><thead><tr>
+    <th>Kỳ</th><th>Trả</th><th>Lãi</th><th>Gốc</th><th>Dư nợ</th>
+  </tr></thead><tbody>`;
+  const row = r => `<tr>
+    <td>${r.k}</td>
+    <td>${fmtVN0(r.payment)}</td>
+    <td>${fmtVN0(r.interest)}</td>
+    <td>${fmtVN0(r.principal)}</td>
+    <td>${fmtVN0(r.balance)}</td>
+  </tr>`;
+
+  const first = rows.slice(0, 3).map(row).join('');
+  const last  = rows.slice(-3).map(row).join('');
+  wrap.innerHTML = head +
+    first +
+    `<tr><td colspan="5" style="text-align:center;color:var(--muted)">...</td></tr>` +
+    last +
+    `</tbody></table>
+     <div style="margin-top:8px">
+       <button id="loanExpand" class="btn">Hiển thị toàn bộ bảng (${rows.length} dòng)</button>
+     </div>`;
+
+  document.getElementById('loanExpand').onclick = () => {
+    wrap.innerHTML = head + rows.map(row).join('') + `</tbody></table>`;
+  };
 });
+
 loadHist('loan','loanHist');
 
 /* ===== Tuổi & Countdown ===== */
