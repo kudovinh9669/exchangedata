@@ -4,22 +4,28 @@
 <link rel="icon" type="image/png" href="icon.png" sizes="48x48">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Công cụ chuyển đổi đa năng v2</title>
+<title>Exchange Tool v2</title>
 <style>
   :root{
     --bg:#0b1220; --panel:#101a2b; --text:#e7edf7; --muted:#97a4be;
     --acc:#14b8a6; --acc-2:#60a5fa; --border:#20304b;
     --btn:#1f2a44; --btn-h:#273352;
+    --warn:#f59e0b; --ok:#22c55e; --bad:#ef4444;
   }
   .light{
     --bg:#f6f8fc; --panel:#ffffff; --text:#0b1220; --muted:#44506a;
     --acc:#0ea5e9; --acc-2:#16a34a; --border:#e5e9f2;
     --btn:#eef2f9; --btn-h:#e4e9f5;
   }
+ /* webkit scrollbar */
+*::-webkit-scrollbar{height:10px;width:10px}
+*::-webkit-scrollbar-track{background:var(--btn);border-radius:8px}
+*::-webkit-scrollbar-thumb{background:linear-gradient(180deg,rgba(14,165,233,.9),rgba(14,165,233,.7));border:2px solid var(--btn);border-radius:8px}
+*::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,rgba(14,165,233,1),rgba(14,165,233,.85))}
   *{box-sizing:border-box}
   html,body{height:100%}
   body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text)}
-  .wrap{max-width:1080px;margin:40px auto;padding:0 16px}
+  .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
   .frame{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:visible;box-shadow:0 10px 30px rgba(0,0,0,.25)}
   .frame-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.02),transparent)}
   .brand{display:flex;align-items:center;gap:10px}
@@ -40,12 +46,13 @@
   .dot{width:10px;height:10px;border-radius:50%;background:var(--acc)}
   .row{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
   label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-  input[type="number"],select,input[type="date"]{
-    width:100%;min-width:140px;max-width:230px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);
+  input[type="number"],select,input[type="date"],textarea{
+    width:100%;min-width:140px;max-width:260px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);
     background:transparent;color:var(--text);outline:none
   }
+  textarea{min-height:84px;max-width:520px}
   select,option{background-color:var(--panel);color:var(--text)}
-  select:focus,input:focus{outline:2px solid var(--acc-2);outline-offset:1px}
+  select:focus,input:focus,textarea:focus{outline:2px solid var(--acc-2);outline-offset:1px}
   input[type="checkbox"]{width:18px;height:18px}
   .btn{background:var(--acc);color:#fff;border:0;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
   .btn:hover{filter:brightness(1.05)}
@@ -55,6 +62,14 @@
   .foot{padding:14px;border-top:1px dashed var(--border);text-align:center;color:var(--muted);font-size:13px}
   .status{font-size:13px;color:var(--muted)}
   .radio-row{display:flex;gap:14px;align-items:center}
+  .hist{margin-top:10px}
+  .hist b{font-size:13px;color:var(--muted)}
+  .hist ul{margin:6px 0 0 18px;padding:0}
+  .hist li{font-size:13px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  th,td{border:1px solid var(--border);padding:8px;text-align:right}
+  th{background:rgba(255,255,255,.04);text-align:center}
+  .warn{color:var(--warn)} .ok{color:var(--ok)} .bad{color:var(--bad)}
 </style>
 </head>
 <body>
@@ -64,7 +79,7 @@
     <div class="frame-head">
       <div class="brand">
         <svg class="theme-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <h1>Toolkit • <span class="muted">Tất cả công cụ</span></h1>
+        <h1>Toolkit • <span class="muted">All-in-one</span></h1>
       </div>
       <button id="themeBtn" class="theme-btn" aria-label="Đổi giao diện"><span class="theme-ico" id="themeIcon">🌙</span><span id="themeText">Tối</span></button>
     </div>
@@ -75,25 +90,32 @@
       <button class="tab-btn" data-tab="tab-length">Độ dài</button>
       <button class="tab-btn" data-tab="tab-mass">Khối lượng</button>
       <button class="tab-btn" data-tab="tab-volume">Thể tích</button>
-      <button class="tab-btn" data-tab="tab-currency">Tiền tệ (Realtime)</button>
-      <button class="tab-btn" data-tab="tab-time">Thời gian</button>
-      <button class="tab-btn" data-tab="tab-date">Ngày</button>
+      <button class="tab-btn" data-tab="tab-area">Diện tích</button>
+      <button class="tab-btn" data-tab="tab-speed">Tốc độ</button>
+      <button class="tab-btn" data-tab="tab-pressure">Áp suất</button>
+      <button class="tab-btn" data-tab="tab-energy">Năng lượng</button>
+      <button class="tab-btn" data-tab="tab-currency">Tiền tệ</button>
       <button class="tab-btn" data-tab="tab-temp">Nhiệt độ</button>
       <button class="tab-btn" data-tab="tab-bmi">BMI</button>
       <button class="tab-btn" data-tab="tab-percent">Phần trăm</button>
-      <button class="tab-btn" data-tab="tab-dob">Sinh nhật (tử vi & hoàng đạo)</button>
+      <button class="tab-btn" data-tab="tab-time">Thời gian</button>
+      <button class="tab-btn" data-tab="tab-date">Ngày</button>
+      <button class="tab-btn" data-tab="tab-loan">Khoản vay</button>
+      <button class="tab-btn" data-tab="tab-age">Tuổi & Countdown</button>
+      <button class="tab-btn" data-tab="tab-bizdays">Ngày làm việc</button>
+      <button class="tab-btn" data-tab="tab-bmr">BMR / TDEE</button>
+      <button class="tab-btn" data-tab="tab-dob">Sinh nhật</button>
     </div>
 
     <div class="panel">
+
       <!-- ========== Âm–Dương Lịch ========== -->
       <section class="tab-panel" id="tab-lunisolar">
         <div class="row" style="justify-content:space-between;gap:16px;margin-bottom:8px">
           <div class="muted">Tra cứu lịch Âm ⇄ Dương (1900–2100)</div>
           <div class="row" style="align-items:center">
             <label class="muted" style="margin:0 6px 0 0">Múi giờ</label>
-            <select id="tzGlobal">
-              <option value="7" selected>GMT+7 (VN)</option><option value="8">GMT+8</option><option value="0">GMT</option>
-            </select>
+            <select id="tzGlobal"><option value="7" selected>GMT+7</option><option value="8">GMT+8</option><option value="0">GMT</option></select>
           </div>
         </div>
         <div class="grid">
@@ -103,15 +125,12 @@
               <div><label>Ngày</label><input id="sDay" type="number" min="1" max="31" value="1"></div>
               <div><label>Tháng</label><input id="sMonth" type="number" min="1" max="12" value="1"></div>
               <div><label>Năm</label><input id="sYear" type="number" min="1900" max="2100" value="2025"></div>
-              <div><label>Múi giờ</label>
-                <select id="tz1"><option value="7" selected>GMT+7</option><option value="8">GMT+8</option><option value="0">GMT</option></select>
-              </div>
+              <div><label>Múi giờ</label><select id="tz1"><option value="7" selected>GMT+7</option><option value="8">GMT+8</option><option value="0">GMT</option></select></div>
               <div><button id="btnS2L" class="btn">Chuyển →</button></div>
             </div>
             <div id="outS2L" class="result"></div>
             <div id="outS2LCC" class="muted" style="margin-top:6px"></div>
           </div>
-
           <div class="card">
             <div class="title"><span class="dot" style="background:var(--acc-2)"></span><h3 style="margin:0">Âm → Dương</h3></div>
             <div class="row">
@@ -119,16 +138,14 @@
               <div><label>Tháng</label><input id="lMonth" type="number" min="1" max="12" value="1"></div>
               <div><label>Năm</label><input id="lYear" type="number" min="1900" max="2100" value="2025"></div>
               <div class="row" style="align-items:center;margin-bottom:8px"><input id="lLeap" type="checkbox" /><label for="lLeap">Tháng nhuận</label></div>
-              <div><label>Múi giờ</label>
-                <select id="tz2"><option value="7" selected>GMT+7</option><option value="8">GMT+8</option><option value="0">GMT</option></select>
-              </div>
+              <div><label>Múi giờ</label><select id="tz2"><option value="7" selected>GMT+7</option><option value="8">GMT+8</option><option value="0">GMT</option></select></div>
               <div><button id="btnL2S" class="btn">← Chuyển</button></div>
             </div>
             <div id="outL2S" class="result"></div>
             <div id="outL2SCC" class="muted" style="margin-top:6px"></div>
           </div>
         </div>
-        <div class="foot">Ví dụ kiểm chứng: Âm lịch <b>01/01/2026</b> → Dương lịch <b>17/02/2026</b> (GMT+7).</div>
+        <div class="foot">Ví dụ kiểm chứng: 01/01/2026 âm → 17/02/2026 dương (GMT+7).</div>
       </section>
 
       <!-- ========== Độ dài ========== -->
@@ -138,7 +155,7 @@
           <div class="row">
             <div><label>Giá trị</label><input id="lenAmount" type="number" value="1" step="any"></div>
             <div><label>Từ</label><select id="lenFrom"></select></div>
-            <div><label class="muted" style="visibility:hidden">Đổi</label><button id="lenSwap" class="icon-btn" aria-label="Đổi chiều"><span style="font-size:18px">⇄</span></button></div>
+            <div><label class="muted" style="visibility:hidden">Đổi</label><button id="lenSwap" class="icon-btn" aria-label="Đổi chiều">⇄</button></div>
             <div><label>Đến</label><select id="lenTo"></select></div>
             <div><label class="muted" style="visibility:hidden">_</label><button id="lenConvert" class="btn">Quy đổi</button></div>
           </div>
@@ -153,12 +170,12 @@
           <div class="row">
             <div><label>Giá trị</label><input id="massAmount" type="number" value="1" step="any"></div>
             <div><label>Từ</label><select id="massFrom"></select></div>
-            <div><label class="muted" style="visibility:hidden">Đổi</label><button id="massSwap" class="icon-btn" aria-label="Đổi chiều"><span style="font-size:18px">⇄</span></button></div>
+            <div><label class="muted" style="visibility:hidden">Đổi</label><button id="massSwap" class="icon-btn" aria-label="Đổi chiều">⇄</button></div>
             <div><label>Đến</label><select id="massTo"></select></div>
             <div><label class="muted" style="visibility:hidden">_</label><button id="massConvert" class="btn">Quy đổi</button></div>
           </div>
           <div id="massResult" class="result"></div>
-          <div class="muted" style="margin-top:6px">Đơn vị: mg, g, kg, t, oz, lb</div>
+          <div class="muted" style="margin-top:6px">mg, g, kg, t, oz, lb</div>
         </div>
       </section>
 
@@ -169,12 +186,76 @@
           <div class="row">
             <div><label>Giá trị</label><input id="volAmount" type="number" value="1" step="any"></div>
             <div><label>Từ</label><select id="volFrom"></select></div>
-            <div><label class="muted" style="visibility:hidden">Đổi</label><button id="volSwap" class="icon-btn" aria-label="Đổi chiều"><span style="font-size:18px">⇄</span></button></div>
+            <div><label class="muted" style="visibility:hidden">Đổi</label><button id="volSwap" class="icon-btn" aria-label="Đổi chiều">⇄</button></div>
             <div><label>Đến</label><select id="volTo"></select></div>
             <div><label class="muted" style="visibility:hidden">_</label><button id="volConvert" class="btn">Quy đổi</button></div>
           </div>
           <div id="volResult" class="result"></div>
-          <div class="muted" style="margin-top:6px">Đơn vị: ml, l, m³, in³, ft³, gal (US), gal (UK)</div>
+          <div class="muted" style="margin-top:6px">ml, l, m³, in³, ft³, gal (US/UK)</div>
+        </div>
+      </section>
+
+      <!-- ========== Diện tích (mới) ========== -->
+      <section class="tab-panel" id="tab-area" hidden>
+        <div class="card">
+          <div class="title"><span class="dot" style="background:#34d399"></span><h3 style="margin:0">Chuyển đổi Diện tích</h3></div>
+          <div class="row">
+            <div><label>Giá trị</label><input id="aVal" type="number" value="1" step="any"></div>
+            <div><label>Từ</label><select id="aFrom"></select></div>
+            <div><label class="muted" style="visibility:hidden">_</label><button id="aSwap" class="icon-btn" aria-label="Đổi chiều">⇄</button></div>
+            <div><label>Đến</label><select id="aTo"></select></div>
+            <div><label class="muted" style="visibility:hidden">_</label><button id="aConv" class="btn">Quy đổi</button></div>
+          </div>
+          <div id="aOut" class="result"></div>
+          <div class="hist"><b>Lịch sử</b><ul id="aHist"></ul></div>
+        </div>
+      </section>
+
+      <!-- ========== Tốc độ (mới) ========== -->
+      <section class="tab-panel" id="tab-speed" hidden>
+        <div class="card">
+          <div class="title"><span class="dot" style="background:#60a5fa"></span><h3 style="margin:0">Chuyển đổi Tốc độ</h3></div>
+          <div class="row">
+            <div><label>Giá trị</label><input id="spVal" type="number" value="60" step="any"></div>
+            <div><label>Từ</label><select id="spFrom"></select></div>
+            <div><label class="muted" style="visibility:hidden">_</label><button id="spSwap" class="icon-btn" aria-label="Đổi chiều">⇄</button></div>
+            <div><label>Đến</label><select id="spTo"></select></div>
+            <div><label class="muted" style="visibility:hidden">_</label><button id="spConv" class="btn">Quy đổi</button></div>
+          </div>
+          <div id="spOut" class="result"></div>
+          <div class="hist"><b>Lịch sử</b><ul id="spHist"></ul></div>
+        </div>
+      </section>
+
+      <!-- ========== Áp suất (mới) ========== -->
+      <section class="tab-panel" id="tab-pressure" hidden>
+        <div class="card">
+          <div class="title"><span class="dot" style="background:#f59e0b"></span><h3 style="margin:0">Chuyển đổi Áp suất</h3></div>
+        <div class="row">
+            <div><label>Giá trị</label><input id="prVal" type="number" value="1" step="any"></div>
+            <div><label>Từ</label><select id="prFrom"></select></div>
+            <div><label class="muted" style="visibility:hidden">_</label><button id="prSwap" class="icon-btn" aria-label="Đổi chiều">⇄</button></div>
+            <div><label>Đến</label><select id="prTo"></select></div>
+            <div><label class="muted" style="visibility:hidden">_</label><button id="prConv" class="btn">Quy đổi</button></div>
+          </div>
+          <div id="prOut" class="result"></div>
+          <div class="hist"><b>Lịch sử</b><ul id="prHist"></ul></div>
+        </div>
+      </section>
+
+      <!-- ========== Năng lượng (mới) ========== -->
+      <section class="tab-panel" id="tab-energy" hidden>
+        <div class="card">
+          <div class="title"><span class="dot" style="background:#a78bfa"></span><h3 style="margin:0">Chuyển đổi Năng lượng / Công</h3></div>
+          <div class="row">
+            <div><label>Giá trị</label><input id="enVal" type="number" value="1" step="any"></div>
+            <div><label>Từ</label><select id="enFrom"></select></div>
+            <div><label class="muted" style="visibility:hidden">_</label><button id="enSwap" class="icon-btn" aria-label="Đổi chiều">⇄</button></div>
+            <div><label>Đến</label><select id="enTo"></select></div>
+            <div><label class="muted" style="visibility:hidden">_</label><button id="enConv" class="btn">Quy đổi</button></div>
+          </div>
+          <div id="enOut" class="result"></div>
+          <div class="hist"><b>Lịch sử</b><ul id="enHist"></ul></div>
         </div>
       </section>
 
@@ -185,67 +266,12 @@
           <div class="row">
             <div><label>Số tiền</label><input id="fxAmount" type="number" value="100" step="any"></div>
             <div><label>Từ</label><select id="fxFrom"></select></div>
-            <div><label class="muted" style="visibility:hidden">Đổi</label><button id="fxSwap" class="icon-btn" aria-label="Đổi chiều"><span style="font-size:18px">⇄</span></button></div>
+            <div><label class="muted" style="visibility:hidden">Đổi</label><button id="fxSwap" class="icon-btn" aria-label="Đổi chiều">⇄</button></div>
             <div><label>Đến</label><select id="fxTo"></select></div>
             <div><label class="muted" style="visibility:hidden">_</label><button id="fxConvert" class="btn">Quy đổi</button></div>
           </div>
           <div id="fxResult" class="result"></div>
           <div class="status" id="fxStatus">Đang tải danh sách mã tiền tệ…</div>
-        </div>
-      </section>
-
-      <!-- ========== Thời gian ========== -->
-      <section class="tab-panel" id="tab-time" hidden>
-        <div class="card">
-          <div class="title"><span class="dot" style="background:#22c55e"></span><h3 style="margin:0">Chuyển đổi Thời gian</h3></div>
-          <div class="row">
-            <div><label>Giá trị</label><input id="tVal" type="number" value="60" step="any"></div>
-            <div><label>Từ</label>
-              <select id="tFrom">
-                <option value="y">Năm</option>
-                <option value="mo">Tháng</option>
-                <option value="d">Ngày</option>
-                <option value="h">Giờ</option>
-                <option value="m" selected>Phút</option>
-                <option value="s">Giây</option>
-              </select>
-            </div>
-            <div><label class="muted" style="visibility:hidden">Đổi</label><button id="tSwap" class="icon-btn" aria-label="Đổi chiều"><span style="font-size:18px">⇄</span></button></div>
-            <div><label>Đến</label>
-              <select id="tTo">
-                <option value="y">Năm</option>
-                <option value="mo">Tháng</option>
-                <option value="d">Ngày</option>
-                <option value="h">Giờ</option>
-                <option value="m">Phút</option>
-                <option value="s" selected>Giây</option>
-              </select>
-            </div>
-            <div>
-              <label>Kết quả</label>
-              <div class="radio-row">
-                <label><input type="radio" name="tMode" value="dec" checked> Thập phân</label>
-                <label><input type="radio" name="tMode" value="split"> Phân tách (vd: 1 phút 18 giây)</label>
-              </div>
-            </div>
-            <div><label class="muted" style="visibility:hidden">_</label><button id="tConvert" class="btn">Quy đổi</button></div>
-          </div>
-          <div id="tOut" class="result"></div>
-          <div class="muted" style="margin-top:6px">Quy ước: <b>1 năm = 365 ngày</b>, <b>1 tháng = 30 ngày</b>.</div>
-        </div>
-      </section>
-
-      <!-- ========== Ngày ========== -->
-      <section class="tab-panel" id="tab-date" hidden>
-        <div class="card">
-          <div class="title"><span class="dot" style="background:#f97316"></span><h3 style="margin:0">Tính khoảng cách giữa 2 ngày</h3></div>
-          <div class="row">
-            <div><label>Ngày bắt đầu</label><input id="dFrom" type="date"></div>
-            <div><label>Ngày kết thúc</label><input id="dTo" type="date"></div>
-            <div><label class="muted" style="visibility:hidden">_</label><button id="dCalc" class="btn">Tính</button></div>
-          </div>
-          <div id="dOut" class="result"></div>
-          <div class="muted" style="margin-top:6px">Cách tính: <b>loại trừ</b> (số ngày = ngày_kết_thúc − ngày_bắt_đầu). Ví dụ: 29/10 → 08/11 = 10 ngày.</div>
         </div>
       </section>
 
@@ -256,19 +282,11 @@
           <div class="row">
             <div><label>Giá trị</label><input id="tmpVal" type="number" value="100" step="any"></div>
             <div><label>Từ</label>
-              <select id="tmpFrom">
-                <option value="C" selected>°C</option>
-                <option value="F">°F</option>
-                <option value="K">K</option>
-              </select>
+              <select id="tmpFrom"><option value="C" selected>°C</option><option value="F">°F</option><option value="K">K</option></select>
             </div>
-            <div><label class="muted" style="visibility:hidden">swap</label><button id="tmpSwap" class="icon-btn" aria-label="Đổi chiều"><span style="font-size:18px">⇄</span></button></div>
+            <div><label class="muted" style="visibility:hidden">swap</label><button id="tmpSwap" class="icon-btn" aria-label="Đổi chiều">⇄</button></div>
             <div><label>Đến</label>
-              <select id="tmpTo">
-                <option value="C">°C</option>
-                <option value="F" selected>°F</option>
-                <option value="K">K</option>
-              </select>
+              <select id="tmpTo"><option value="C">°C</option><option value="F" selected>°F</option><option value="K">K</option></select>
             </div>
             <div><label class="muted" style="visibility:hidden">_</label><button id="tmpConvert" class="btn">Quy đổi</button></div>
           </div>
@@ -296,12 +314,8 @@
           <div class="title"><span class="dot" style="background:#06b6d4"></span><h3 style="margin:0">Tính Phần trăm</h3></div>
 
           <div class="row">
-            <div><label>X% của N</label>
-              <input id="pctX" type="number" value="10" step="any" placeholder="X (%)">
-            </div>
-            <div><label>N</label>
-              <input id="pctN" type="number" value="200" step="any" placeholder="N">
-            </div>
+            <div><label>X% của N</label><input id="pctX" type="number" value="10" step="any" placeholder="X (%)"></div>
+            <div><label>N</label><input id="pctN" type="number" value="200" step="any" placeholder="N"></div>
             <div><label class="muted" style="visibility:hidden">_</label><button id="pctCalc1" class="btn">Tính</button></div>
           </div>
           <div id="pctOut1" class="result"></div>
@@ -325,23 +339,137 @@
         </div>
       </section>
 
-      <!-- ========== Sinh nhật (tử vi & hoàng đạo) ========== -->
+      <!-- ========== Thời gian ========== -->
+      <section class="tab-panel" id="tab-time" hidden>
+        <div class="card">
+          <div class="title"><span class="dot" style="background:#22c55e"></span><h3 style="margin:0">Chuyển đổi Thời gian</h3></div>
+          <div class="row">
+            <div><label>Giá trị</label><input id="tVal" type="number" value="60" step="any"></div>
+            <div><label>Từ</label>
+              <select id="tFrom"><option value="y">Năm</option><option value="mo">Tháng</option><option value="d">Ngày</option><option value="h">Giờ</option><option value="m" selected>Phút</option><option value="s">Giây</option></select>
+            </div>
+            <div><label class="muted" style="visibility:hidden">Đổi</label><button id="tSwap" class="icon-btn" aria-label="Đổi chiều">⇄</button></div>
+            <div><label>Đến</label>
+              <select id="tTo"><option value="y">Năm</option><option value="mo">Tháng</option><option value="d">Ngày</option><option value="h">Giờ</option><option value="m">Phút</option><option value="s" selected>Giây</option></select>
+            </div>
+            <div>
+              <label>Kết quả</label>
+              <div class="radio-row">
+                <label><input type="radio" name="tMode" value="dec" checked> Thập phân</label>
+                <label><input type="radio" name="tMode" value="split"> Phân tách (vd: 1 phút 18 giây)</label>
+              </div>
+            </div>
+            <div><label class="muted" style="visibility:hidden">_</label><button id="tConvert" class="btn">Quy đổi</button></div>
+          </div>
+          <div id="tOut" class="result"></div>
+          <div class="muted" style="margin-top:6px">Quy ước: 1 năm = 365 ngày, 1 tháng = 30 ngày.</div>
+        </div>
+      </section>
+
+      <!-- ========== Ngày ========== -->
+      <section class="tab-panel" id="tab-date" hidden>
+        <div class="card">
+          <div class="title"><span class="dot" style="background:#f97316"></span><h3 style="margin:0">Tính khoảng cách giữa 2 ngày</h3></div>
+          <div class="row">
+            <div><label>Ngày bắt đầu</label><input id="dFrom" type="date"></div>
+            <div><label>Ngày kết thúc</label><input id="dTo" type="date"></div>
+            <div><label class="muted" style="visibility:hidden">_</label><button id="dCalc" class="btn">Tính</button></div>
+          </div>
+          <div id="dOut" class="result"></div>
+          <div class="muted" style="margin-top:6px">Cách tính: <b>loại trừ</b> (số ngày = kết thúc − bắt đầu).</div>
+        </div>
+      </section>
+
+      <!-- ========== Khoản vay (mới) ========== -->
+      <section class="tab-panel" id="tab-loan" hidden>
+        <div class="card">
+          <div class="title"><span class="dot" style="background:#22c55e"></span><h3 style="margin:0">Tính khoản vay (bảng khấu hao)</h3></div>
+          <div class="row">
+            <div><label>Tiền vay (VND)</label><input id="loanP" type="number" value="100000000" step="1000"></div>
+            <div><label>Lãi suất năm (%)</label><input id="loanR" type="number" value="10" step="0.01"></div>
+            <div><label>Kỳ hạn (tháng)</label><input id="loanN" type="number" value="60"></div>
+            <div><label class="muted" style="visibility:hidden">_</label><button id="loanCalc" class="btn">Tính</button></div>
+          </div>
+          <div id="loanOut" class="result"></div>
+          <div id="loanTableWrap"></div>
+          <div class="hist"><b>Lịch sử</b><ul id="loanHist"></ul></div>
+        </div>
+      </section>
+
+      <!-- ========== Tuổi & Countdown (mới) ========== -->
+      <section class="tab-panel" id="tab-age" hidden>
+        <div class="card">
+          <div class="title"><span class="dot" style="background:#ef4444"></span><h3 style="margin:0">Tuổi hiện tại & Đếm ngược</h3></div>
+          <div class="row">
+            <div><label>Ngày sinh</label><input id="ageDob" type="date"></div>
+            <div><label>Mốc đếm (tùy chọn)</label><input id="ageTarget" type="date"></div>
+            <div><label class="muted" style="visibility:hidden">_</label><button id="ageCalc" class="btn">Tính</button></div>
+          </div>
+          <div id="ageOut" class="result"></div>
+          <div class="hist"><b>Lịch sử</b><ul id="ageHist"></ul></div>
+        </div>
+      </section>
+
+      <!-- ========== Ngày làm việc (mới) ========== -->
+      <section class="tab-panel" id="tab-bizdays" hidden>
+        <div class="card">
+          <div class="title"><span class="dot" style="background:#f97316"></span><h3 style="margin:0">Tính số ngày làm việc</h3></div>
+          <div class="row">
+            <div><label>Từ ngày</label><input id="bdFrom" type="date"></div>
+            <div><label>Đến ngày</label><input id="bdTo" type="date"></div>
+            <div class="row" style="align-items:center"><input id="bdWeekend" type="checkbox" checked><label for="bdWeekend">Loại trừ T7/CN</label></div>
+          </div>
+          <div class="row">
+            <div style="min-width:100%"><label>Ngày nghỉ/Ngày lễ (dd/mm/yyyy, cách nhau bởi dấu phẩy)</label>
+              <textarea id="bdHoliday" placeholder="01/01/2026, 30/04/2026, 01/05/2026"></textarea>
+            </div>
+          </div>
+          <div class="row">
+            <div><label class="muted" style="visibility:hidden">_</label><button id="bdCalc" class="btn">Tính</button></div>
+          </div>
+          <div id="bdOut" class="result"></div>
+          <div class="hist"><b>Lịch sử</b><ul id="bdHist"></ul></div>
+        </div>
+      </section>
+
+      <!-- ========== BMR/TDEE (mới) ========== -->
+      <section class="tab-panel" id="tab-bmr" hidden>
+        <div class="card">
+          <div class="title"><span class="dot" style="background:#0ea5e9"></span><h3 style="margin:0">Tính BMR / TDEE</h3></div>
+          <div class="row">
+            <div><label>Giới tính</label><select id="bmrSex"><option value="m" selected>Nam</option><option value="f">Nữ</option></select></div>
+            <div><label>Tuổi</label><input id="bmrAge" type="number" value="25"></div>
+            <div><label>Cao (cm)</label><input id="bmrH" type="number" value="170" step="any"></div>
+            <div><label>Nặng (kg)</label><input id="bmrW" type="number" value="65" step="any"></div>
+            <div><label>Hoạt động</label>
+              <select id="bmrAct">
+                <option value="1.2">Ít vận động (1.2)</option>
+                <option value="1.375">Nhẹ (1.375)</option>
+                <option value="1.55" selected>Vừa (1.55)</option>
+                <option value="1.725">Nhiều (1.725)</option>
+                <option value="1.9">Rất nhiều (1.9)</option>
+              </select>
+            </div>
+            <div><label class="muted" style="visibility:hidden">_</label><button id="bmrCalc" class="btn">Tính</button></div>
+          </div>
+          <div id="bmrOut" class="result"></div>
+          <div class="hist"><b>Lịch sử</b><ul id="bmrHist"></ul></div>
+        </div>
+      </section>
+
+      <!-- ========== Sinh nhật ========== -->
       <section class="tab-panel" id="tab-dob" hidden>
         <div class="card">
           <div class="title"><span class="dot" style="background:#eab308"></span><h3 style="margin:0">Thông tin từ Ngày sinh</h3></div>
           <div class="row">
             <div><label>Ngày sinh (Dương lịch)</label><input id="dobDate" type="date"></div>
-            <div><label>Múi giờ (cho âm lịch)</label>
-              <select id="dobTz">
-                <option value="7" selected>GMT+7 (VN)</option><option value="8">GMT+8</option><option value="0">GMT</option>
-              </select>
-            </div>
+            <div><label>Múi giờ (cho âm lịch)</label><select id="dobTz"><option value="7" selected>GMT+7</option><option value="8">GMT+8</option><option value="0">GMT</option></select></div>
             <div><label class="muted" style="visibility:hidden">_</label><button id="dobCalc" class="btn">Xem thông tin</button></div>
           </div>
           <div id="dobOut" class="result"></div>
-          <div class="muted" style="margin-top:6px">Bao gồm: <b>Âm lịch</b> (ngày/tháng/năm & Can–Chi), <b>cung Hoàng đạo (Tây)</b>, <b>con giáp</b> theo năm âm.</div>
         </div>
       </section>
+
     </div>
   </div>
 </div>
@@ -351,11 +479,13 @@
 (function(){const b=document.getElementById('themeBtn'),i=document.getElementById('themeIcon'),t=document.getElementById('themeText');const saved=localStorage.getItem('theme')||'dark';if(saved==='light')document.documentElement.classList.add('light');function u(){const L=document.documentElement.classList.contains('light');i.textContent=L?'☀️':'🌙';t.textContent=L?'Sáng':'Tối'}u();b.addEventListener('click',()=>{const L=!document.documentElement.classList.contains('light');document.documentElement.classList.toggle('light',L);localStorage.setItem('theme',L?'light':'dark');u();});})();
 
 /* ===== Tabs ===== */
-(function(){const btns=[...document.querySelectorAll('.tab-btn')],panels=[...document.querySelectorAll('.tab-panel')];function act(id){btns.forEach(b=>b.classList.toggle('active',b.dataset.tab===id));panels.forEach(p=>p.hidden=(p.id!==id));}btns.forEach(b=>b.addEventListener('click',()=>act(b.dataset.tab)));act('tab-dob');})(); // mở tab Sinh nhật để bạn test ngay
+(function(){const btns=[...document.querySelectorAll('.tab-btn')],panels=[...document.querySelectorAll('.tab-panel')];function act(id){btns.forEach(b=>b.classList.toggle('active',b.dataset.tab===id));panels.forEach(p=>p.hidden=(p.id!==id));}btns.forEach(b=>b.addEventListener('click',()=>act(b.dataset.tab)));act('tab-lunisolar');})();
 
 /* ===== Helpers ===== */
 const $=id=>document.getElementById(id);
 const setResult=(el,html,ok=true)=>el.innerHTML=`<div style="color:${ok?'var(--acc-2)':'#f43f5e'}">${html}</div>`;
+function pushHist(key,text,ulId){const k='tool_hist_'+key;let arr=[];try{arr=JSON.parse(localStorage.getItem(k)||'[]')}catch{}arr.unshift(text);arr=arr.slice(0,5);localStorage.setItem(k,JSON.stringify(arr));const ul=$(ulId);if(ul) ul.innerHTML=arr.map(x=>`<li>${x}</li>`).join('');}
+function loadHist(key,ulId){const k='tool_hist_'+key;let arr=[];try{arr=JSON.parse(localStorage.getItem(k)||'[]')}catch{}const ul=$(ulId);if(ul) ul.innerHTML=arr.map(x=>`<li>${x}</li>`).join('');}
 const VN_DOW=["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
 
 /* ===== Lịch Âm–Dương ===== */
@@ -377,22 +507,38 @@ $('tzGlobal').addEventListener('change',()=>{$('tz1').value=$('tzGlobal').value;
 $('btnS2L').addEventListener('click',()=>{const d=+$('sDay').value,m=+$('sMonth').value,y=+$('sYear').value,tz=+$('tz1').value;try{const r=solarToLunar(d,m,y,tz);setResult($('outS2L'),`Âm lịch: <b>${String(r.day).padStart(2,'0')}/${String(r.month).padStart(2,'0')}/${r.year}${r.leap?' (nhuận)':''}</b>`);$('outS2LCC').innerHTML=`Ngày: <b>${ccDay(d,m,y)}</b> • Tháng: <b>${ccMonth(r.month,r.year)}</b> • Năm: <b>${ccYear(r.year)}</b>`;}catch(e){setResult($('outS2L'),e.message,false);$('outS2LCC').textContent='';}});
 $('btnL2S').addEventListener('click',()=>{const d=+$('lDay').value,m=+$('lMonth').value,y=+$('lYear').value,isleap=$('lLeap').checked,tz=+$('tz2').value;try{const r=lunarToSolar(d,m,y,isleap,tz);setResult($('outL2S'),`Dương lịch: <b>${String(r.day).padStart(2,'0')}/${String(r.month).padStart(2,'0')}/${r.year}</b>`);$('outL2SCC').innerHTML=`Ngày: <b>${ccDay(r.day,r.month,r.year)}</b> • Tháng: <b>${ccMonth(m,y)}</b> • Năm: <b>${ccYear(y)}</b>`;}catch(e){setResult($('outL2S'),e.message,false);$('outL2SCC').textContent='';}});
 
-/* ===== Độ dài ===== */
+/* ===== Length / Mass / Volume ===== */
 const LEN_UNITS={mm:{name:'Milimét',toMeter:0.001},cm:{name:'Centimét',toMeter:0.01},m:{name:'Mét',toMeter:1},km:{name:'Kilômét',toMeter:1000},in:{name:'Inch',toMeter:0.0254},ft:{name:'Foot',toMeter:0.3048},yd:{name:'Yard',toMeter:0.9144},mi:{name:'Dặm',toMeter:1609.34}};
 (function(){const f=$('lenFrom'),t=$('lenTo');for(const k in LEN_UNITS){const label=`${LEN_UNITS[k].name} (${k})`;f.insertAdjacentHTML('beforeend',`<option value="${k}">${label}</option>`);t.insertAdjacentHTML('beforeend',`<option value="${k}">${label}</option>`);}f.value='m';t.value='cm';function convert(){const amt=parseFloat($('lenAmount').value);if(isNaN(amt))return;const val=(amt*LEN_UNITS[f.value].toMeter)/LEN_UNITS[t.value].toMeter;setResult($('lenResult'),`${amt.toLocaleString('vi-VN')} ${f.value} = <b>${val.toLocaleString('vi-VN',{maximumFractionDigits:6})}</b> ${t.value}`);}$('lenConvert').addEventListener('click',convert);$('lenSwap').addEventListener('click',()=>{[f.value,t.value]=[t.value,f.value];convert();});convert();})();
-
-/* ===== Khối lượng ===== */
 const MASS_UNITS={mg:{name:'Miligram',toKg:0.000001},g:{name:'Gram',toKg:0.001},kg:{name:'Kilogram',toKg:1},t:{name:'Tấn (metric)',toKg:1000},oz:{name:'Ounce',toKg:0.028349523125},lb:{name:'Pound',toKg:0.45359237}};
 (function(){const f=$('massFrom'),t=$('massTo');for(const k in MASS_UNITS){const label=`${MASS_UNITS[k].name} (${k})`;f.insertAdjacentHTML('beforeend',`<option value="${k}">${label}</option>`);t.insertAdjacentHTML('beforeend',`<option value="${k}">${label}</option>`);}f.value='kg';t.value='lb';function convert(){const amt=parseFloat($('massAmount').value);if(isNaN(amt))return;const val=(amt*MASS_UNITS[f.value].toKg)/MASS_UNITS[t.value].toKg;setResult($('massResult'),`${amt.toLocaleString('vi-VN')} ${f.value} = <b>${val.toLocaleString('vi-VN',{maximumFractionDigits:6})}</b> ${t.value}`);}$('massConvert').addEventListener('click',convert);$('massSwap').addEventListener('click',()=>{[f.value,t.value]=[t.value,f.value];convert();});convert();})();
-
-/* ===== Thể tích ===== */
 const VOL_UNITS={ml:{name:'Mililít',toM3:0.000001},l:{name:'Lít',toM3:0.001},m3:{name:'Mét khối',toM3:1},in3:{name:'Inch khối',toM3:0.000016387064},ft3:{name:'Feet khối',toM3:0.028316846592},galUS:{name:'Gallon (US)',toM3:0.003785411784},galUK:{name:'Gallon (UK)',toM3:0.00454609}};
 (function(){const f=$('volFrom'),t=$('volTo');for(const k in VOL_UNITS){const label=`${VOL_UNITS[k].name} (${k})`;f.insertAdjacentHTML('beforeend',`<option value="${k}">${label}</option>`);t.insertAdjacentHTML('beforeend',`<option value="${k}">${label}</option>`);}f.value='l';t.value='ml';function convert(){const amt=parseFloat($('volAmount').value);if(isNaN(amt))return;const val=(amt*VOL_UNITS[f.value].toM3)/VOL_UNITS[t.value].toM3;setResult($('volResult'),`${amt.toLocaleString('vi-VN')} ${f.value} = <b>${val.toLocaleString('vi-VN',{maximumFractionDigits:6})}</b> ${t.value}`);}$('volConvert').addEventListener('click',convert);$('volSwap').addEventListener('click',()=>{[f.value,t.value]=[t.value,f.value];convert();});convert();})();
+
+/* ===== Diện tích / Tốc độ / Áp suất / Năng lượng ===== */
+function buildSelect(sel, map){for(const k in map){sel.insertAdjacentHTML('beforeend', `<option value="${k}">${map[k].name} (${k})</option>`);}}
+function convertGeneric(val, fromKey, toKey, baseKey, map){const v=Number(val); if(!isFinite(v)) return null; return v*map[fromKey][baseKey]/map[toKey][baseKey];}
+const AREA={mm2:{name:'mm²',m2:1e-6},cm2:{name:'cm²',m2:1e-4},m2:{name:'m²',m2:1},ha:{name:'hecta',m2:10000},km2:{name:'km²',m2:1e6},in2:{name:'in²',m2:0.00064516},ft2:{name:'ft²',m2:0.09290304},yd2:{name:'yd²',m2:0.83612736},acre:{name:'acre',m2:4046.8564224}};
+(function(){const f=$('aFrom'), t=$('aTo'); buildSelect(f,AREA); buildSelect(t,AREA); f.value='m2'; t.value='cm2';
+  function run(){const out=convertGeneric($('aVal').value,f.value,t.value,'m2',AREA); if(out==null) return; setResult($('aOut'),`${$('aVal').value} ${f.value} = <b>${out.toLocaleString('vi-VN',{maximumFractionDigits:8})}</b> ${t.value}`); pushHist('area',`${$('aVal').value} ${f.value} → ${out.toLocaleString('vi-VN',{maximumFractionDigits:4})} ${t.value}`,'aHist');}
+  $('aConv').addEventListener('click',run); $('aSwap').addEventListener('click',()=>{[f.value,t.value]=[t.value,f.value];}); loadHist('area','aHist'); run();})();
+const SPEED={'mps':{name:'m/s',mps:1},'kmph':{name:'km/h',mps:1000/3600},'mph':{name:'mph',mps:1609.344/3600},'knot':{name:'knot',mps:1852/3600}};
+(function(){const f=$('spFrom'), t=$('spTo'); for(const k in SPEED){f.insertAdjacentHTML('beforeend',`<option value="${k}">${SPEED[k].name}</option>`); t.insertAdjacentHTML('beforeend',`<option value="${k}">${SPEED[k].name}</option>`);} f.value='kmph'; t.value='mps';
+  function run(){const out=convertGeneric($('spVal').value,f.value,t.value,'mps',SPEED); if(out==null) return; setResult($('spOut'),`${$('spVal').value} ${SPEED[f.value].name} = <b>${out.toLocaleString('vi-VN',{maximumFractionDigits:6})}</b> ${SPEED[t.value].name}`); pushHist('speed',`${$('spVal').value} ${SPEED[f.value].name} → ${out.toLocaleString('vi-VN',{maximumFractionDigits:3})} ${SPEED[t.value].name}`,'spHist');}
+  $('spConv').addEventListener('click',run); $('spSwap').addEventListener('click',()=>{[f.value,t.value]=[t.value,f.value];}); loadHist('speed','spHist'); run();})();
+const PRESS={Pa:{name:'Pa',Pa:1},kPa:{name:'kPa',Pa:1000},bar:{name:'bar',Pa:1e5},atm:{name:'atm',Pa:101325},psi:{name:'psi',Pa:6894.757293168},mmHg:{name:'mmHg',Pa:133.3223684211}};
+(function(){const f=$('prFrom'), t=$('prTo'); buildSelect(f,PRESS); buildSelect(t,PRESS); f.value='bar'; t.value='psi';
+  function run(){const out=convertGeneric($('prVal').value,f.value,t.value,'Pa',PRESS); if(out==null) return; setResult($('prOut'),`${$('prVal').value} ${f.value} = <b>${out.toLocaleString('vi-VN',{maximumFractionDigits:6})}</b> ${t.value}`); pushHist('press',`${$('prVal').value} ${f.value} → ${out.toLocaleString('vi-VN',{maximumFractionDigits:3})} ${t.value}`,'prHist');}
+  $('prConv').addEventListener('click',run); $('prSwap').addEventListener('click',()=>{[f.value,t.value]=[t.value,f.value];}); loadHist('press','prHist'); run();})();
+const ENERGY={J:{name:'J',J:1},kJ:{name:'kJ',J:1000},cal:{name:'cal',J:4.184},kcal:{name:'kcal',J:4184},Wh:{name:'Wh',J:3600},kWh:{name:'kWh',J:3.6e6}};
+(function(){const f=$('enFrom'), t=$('enTo'); buildSelect(f,ENERGY); buildSelect(t,ENERGY); f.value='kcal'; t.value='kJ';
+  function run(){const out=convertGeneric($('enVal').value,f.value,t.value,'J',ENERGY); if(out==null) return; setResult($('enOut'),`${$('enVal').value} ${f.value} = <b>${out.toLocaleString('vi-VN',{maximumFractionDigits:6})}</b> ${t.value}`); pushHist('energy',`${$('enVal').value} ${f.value} → ${out.toLocaleString('vi-VN',{maximumFractionDigits:3})} ${t.value}`,'enHist');}
+  $('enConv').addEventListener('click',run); $('enSwap').addEventListener('click',()=>{[f.value,t.value]=[t.value,f.value];}); loadHist('energy','enHist'); run();})();
 
 /* ===== Tiền tệ (Realtime ExchangeRate-API) ===== */
 const FX_API_KEY="87372f0f0f69d53b5958b6c2";
 const FX_CACHE_KEY="fx_rates_latest_USD";
-const FX_CACHE_TTL_MS=12*60*60*1000; // 12h
+const FX_CACHE_TTL_MS=12*60*60*1000;
 async function getRates(){
   const cached=localStorage.getItem(FX_CACHE_KEY);
   if(cached){try{const data=JSON.parse(cached);if(Date.now()-data.cachedAt<FX_CACHE_TTL_MS)return data;}catch{}}
@@ -426,6 +572,54 @@ async function getRates(){
     $('fxSwap').addEventListener('click',()=>{[fromSel.value,toSel.value]=[toSel.value,fromSel.value];});
   }catch(e){ status.textContent='Lỗi tải tỷ giá: '+e.message; }
 })();
+
+/* ===== Nhiệt độ ===== */
+function toK(val,unit){if(unit==='C') return val+273.15; if(unit==='F') return (val-32)*5/9+273.15; return val;}
+function fromK(k,unit){if(unit==='C') return k-273.15; if(unit==='F') return (k-273.15)*9/5+32; return k;}
+$('tmpSwap').addEventListener('click',()=>{const f=$('tmpFrom'),t=$('tmpTo');[f.value,t.value]=[t.value,f.value];});
+$('tmpConvert').addEventListener('click',()=>{
+  const v=parseFloat($('tmpVal').value); if(isNaN(v)) return;
+  const from=$('tmpFrom').value, to=$('tmpTo').value;
+  const out=fromK(toK(v,from),to);
+  setResult($('tmpOut'), `${v.toLocaleString('vi-VN')} °${from} = <b>${out.toLocaleString('vi-VN',{maximumFractionDigits:6})} °${to}</b>`);
+});
+
+/* ===== BMI ===== */
+function bmiClass(b){
+  if(b<18.5) return {label:"Gầy", color:"#60a5fa", tip:"Tăng năng lượng, thêm đạm & tập sức mạnh."};
+  if(b<25)   return {label:"Bình thường", color:"#10b981", tip:"Duy trì chế độ ăn cân bằng & vận động đều."};
+  if(b<30)   return {label:"Thừa cân", color:"#f59e0b", tip:"Tăng vận động, kiểm soát khẩu phần & đường."};
+  if(b<35)   return {label:"Béo phì I", color:"#f97316", tip:"Tạo thâm hụt calo nhẹ, theo dõi tiến độ."};
+  if(b<40)   return {label:"Béo phì II", color:"#ef4444", tip:"Tham khảo chuyên gia dinh dưỡng/bác sĩ."};
+  return {label:"Béo phì III", color:"#dc2626", tip:"Cần can thiệp y tế & kế hoạch dài hạn."};
+}
+$('bmiCalc').addEventListener('click',()=>{
+  const h=parseFloat($('bmiH').value), w=parseFloat($('bmiW').value);
+  if(isNaN(h)||isNaN(w)||h<=0||w<=0){ setResult($('bmiOut'),'Vui lòng nhập chiều cao/cân nặng hợp lệ.',false); return; }
+  const m=h/100; const bmi=w/(m*m);
+  const c=bmiClass(bmi);
+  setResult($('bmiOut'), `BMI = <b style="color:${c.color}">${bmi.toFixed(1)}</b> • Phân loại: <b style="color:${c.color}">${c.label}</b><br><span class="muted">Gợi ý:</span> ${c.tip}`);
+});
+
+/* ===== Phần trăm ===== */
+$('pctCalc1').addEventListener('click',()=>{
+  const x=parseFloat($('pctX').value), n=parseFloat($('pctN').value);
+  if(isNaN(x)||isNaN(n)) return;
+  const v=n*x/100;
+  setResult($('pctOut1'), `${x}% của ${n} = <b>${v.toLocaleString('vi-VN',{maximumFractionDigits:6})}</b>`);
+});
+$('pctCalc2').addEventListener('click',()=>{
+  const mode=$('pctMode').value, n=parseFloat($('pctBase').value), r=parseFloat($('pctRate').value);
+  if(isNaN(n)||isNaN(r)) return;
+  const v = mode==='inc' ? n*(1+r/100) : n*(1-r/100);
+  setResult($('pctOut2'), `${mode==='inc'?'Tăng':'Giảm'} ${n} theo ${r}% = <b>${v.toLocaleString('vi-VN',{maximumFractionDigits:6})}</b>`);
+});
+$('pctCalc3').addEventListener('click',()=>{
+  const a=parseFloat($('pctA').value), b=parseFloat($('pctB').value);
+  if(isNaN(a)||isNaN(b)||b===0){ setResult($('pctOut3'),'Vui lòng nhập A/B hợp lệ (B ≠ 0).',false); return; }
+  const p=a/b*100;
+  setResult($('pctOut3'), `${a} là <b>${p.toLocaleString('vi-VN',{maximumFractionDigits:6})}%</b> của ${b}`);
+});
 
 /* ===== Thời gian ===== */
 const T_SECONDS={y:365*24*3600, mo:30*24*3600, d:24*3600, h:3600, m:60, s:1};
@@ -469,92 +663,108 @@ $('dCalc').addEventListener('click',()=>{
   $('dTo').value  =`${de.getFullYear()}-${String(de.getMonth()+1).padStart(2,'0')}-${String(de.getDate()).padStart(2,'0')}`;
 })();
 
-/* ===== Nhiệt độ ===== */
-function toK(val,unit){
-  if(unit==='C') return val+273.15;
-  if(unit==='F') return (val-32)*5/9+273.15;
-  return val; // K
+/* ===== Khoản vay ===== */
+function loanPMT(P, rY, nM){const rM=rY/12/100; return rM===0? P/nM : P*rM/ (1-Math.pow(1+rM,-nM));}
+function loanAmort(P,rY,nM){
+  const rM=rY/12/100, pmt=loanPMT(P,rY,nM);
+  let bal=P, rows=[];
+  for(let k=1;k<=nM;k++){
+    const interest=bal*rM;
+    const principal=Math.min(pmt-interest, bal);
+    bal=Math.max(0, bal-principal);
+    rows.push({k, payment:pmt, interest, principal, balance:bal});
+  }
+  return {pmt, rows};
 }
-function fromK(k,unit){
-  if(unit==='C') return k-273.15;
-  if(unit==='F') return (k-273.15)*9/5+32;
-  return k;
-}
-$('tmpSwap').addEventListener('click',()=>{const f=$('tmpFrom'),t=$('tmpTo');[f.value,t.value]=[t.value,f.value];});
-$('tmpConvert').addEventListener('click',()=>{
-  const v=parseFloat($('tmpVal').value); if(isNaN(v)) return;
-  const from=$('tmpFrom').value, to=$('tmpTo').value;
-  const out=fromK(toK(v,from),to);
-  setResult($('tmpOut'), `${v.toLocaleString('vi-VN')} °${from} = <b>${out.toLocaleString('vi-VN',{maximumFractionDigits:6})} °${to}</b>`);
+$('loanCalc').addEventListener('click',()=>{
+  const P=+$('loanP').value, r=+$('loanR').value, n=+$('loanN').value;
+  if(!(P>0&&n>0)){ setResult($('loanOut'),'Vui lòng nhập tiền vay & kỳ hạn hợp lệ.',false); return;}
+  const {pmt, rows}=loanAmort(P,r,n);
+  const totI=rows.reduce((s,x)=>s+x.interest,0), totP=rows.reduce((s,x)=>s+x.principal,0);
+  setResult($('loanOut'),`
+    Khoản trả hàng tháng: <b>${pmt.toLocaleString('vi-VN',{maximumFractionDigits:0})} VND</b><br>
+    Tổng gốc trả: <b>${totP.toLocaleString('vi-VN')}</b> • Tổng lãi: <b class="warn">${totI.toLocaleString('vi-VN')}</b> • Tổng chi: <b>${(totP+totI).toLocaleString('vi-VN')}</b>
+  `);
+  pushHist('loan',`P=${P.toLocaleString('vi-VN')} | r=${r}% | n=${n}m • PMT≈${pmt.toLocaleString('vi-VN')}`,'loanHist');
+  const wrap=$('loanTableWrap');
+  const head=`<table><thead><tr><th>Kỳ</th><th>Trả</th><th>Lãi</th><th>Gốc</th><th>Dư nợ</th></tr></thead><tbody>`;
+  const fmt=r=>`<tr><td>${r.k}</td><td>${r.payment.toLocaleString('vi-VN',{maximumFractionDigits:0})}</td><td>${r.interest.toLocaleString('vi-VN',{maximumFractionDigits:0})}</td><td>${r.principal.toLocaleString('vi-VN',{maximumFractionDigits:0})}</td><td>${r.balance.toLocaleString('vi-VN',{maximumFractionDigits:0})}</td></tr>`;
+  const first=rows.slice(0,3).map(fmt).join(''); const last=rows.slice(-3).map(fmt).join('');
+  wrap.innerHTML=head+first+`<tr><td colspan="5" style="text-align:center;color:var(--muted)">...</td></tr>`+last+`</tbody></table>
+  <div style="margin-top:8px"><button id="loanExpand" class="btn">Hiển thị toàn bộ bảng (${rows.length} dòng)</button></div>`;
+  $('loanExpand').onclick=()=>{wrap.innerHTML=head+rows.map(fmt).join('')+`</tbody></table>`;}
 });
+loadHist('loan','loanHist');
 
-/* ===== BMI ===== */
-function bmiClass(b){
-  if(b<18.5) return {label:"Gầy", color:"#60a5fa", tip:"Tăng năng lượng, thêm đạm & tập sức mạnh."};
-  if(b<25)   return {label:"Bình thường", color:"#10b981", tip:"Duy trì chế độ ăn cân bằng & vận động đều."};
-  if(b<30)   return {label:"Thừa cân", color:"#f59e0b", tip:"Tăng vận động, kiểm soát khẩu phần & đường."};
-  if(b<35)   return {label:"Béo phì độ I", color:"#f97316", tip:"Tạo thâm hụt calo nhẹ, theo dõi tiến độ."};
-  if(b<40)   return {label:"Béo phì độ II", color:"#ef4444", tip:"Tham khảo chuyên gia dinh dưỡng/bác sĩ."};
-  return {label:"Béo phì độ III", color:"#dc2626", tip:"Cần can thiệp y tế & kế hoạch dài hạn."};
-}
-$('bmiCalc').addEventListener('click',()=>{
-  const h=parseFloat($('bmiH').value), w=parseFloat($('bmiW').value);
-  if(isNaN(h)||isNaN(w)||h<=0||w<=0){ setResult($('bmiOut'),'Vui lòng nhập chiều cao/cân nặng hợp lệ.',false); return; }
-  const m=h/100; const bmi=w/(m*m);
-  const c=bmiClass(bmi);
-  setResult($('bmiOut'), `BMI = <b style="color:${c.color}">${bmi.toFixed(1)}</b> • Phân loại: <b style="color:${c.color}">${c.label}</b><br><span class="muted">Gợi ý:</span> ${c.tip}`);
+/* ===== Tuổi & Countdown ===== */
+function diffYMD(a,b){let y=b.getFullYear()-a.getFullYear();let m=b.getMonth()-a.getMonth();let d=b.getDate()-a.getDate();if(d<0){ m--; const prev=new Date(b.getFullYear(),b.getMonth(),0); d+=prev.getDate(); } if(m<0){ y--; m+=12; } return {y,m,d};}
+$('ageCalc').addEventListener('click',()=>{
+  const s=$('ageDob').value, t=$('ageTarget').value;
+  if(!s){ setResult($('ageOut'),'Vui lòng chọn ngày sinh.',false); return; }
+  const dob=new Date(s+'T00:00:00'); const now=new Date();
+  const age=diffYMD(dob, now);
+  let txt=`Tuổi hiện tại: <b>${age.y} năm ${age.m} tháng ${age.d} ngày</b>`;
+  if(t){
+    const tgt=new Date(t+'T00:00:00'); const msDay=86400000;
+    const days=Math.round((tgt-now)/msDay);
+    txt+=`<br>Đếm ngược tới <b>${t}</b>: <b>${days}</b> ngày`;
+  }else{
+    let next=new Date(now.getFullYear(), dob.getMonth(), dob.getDate());
+    if(next<now) next.setFullYear(next.getFullYear()+1);
+    const days=Math.round((next-now)/86400000);
+    txt+=`<br>Còn <b>${days}</b> ngày tới sinh nhật tiếp theo (${next.toLocaleDateString('vi-VN')})`;
+  }
+  setResult($('ageOut'),txt);
+  pushHist('age',`${s}${t?` → target ${t}`:''}`,'ageHist');
 });
+(function(){const ex=new Date(1998,8,14);$('ageDob').value=`${ex.getFullYear()}-${String(ex.getMonth()+1).padStart(2,'0')}-${String(ex.getDate()).padStart(2,'0')}`;})(); 
+loadHist('age','ageHist');
 
-/* ===== Phần trăm ===== */
-$('pctCalc1').addEventListener('click',()=>{
-  const x=parseFloat($('pctX').value), n=parseFloat($('pctN').value);
-  if(isNaN(x)||isNaN(n)) return;
-  const v=n*x/100;
-  setResult($('pctOut1'), `${x}% của ${n} = <b>${v.toLocaleString('vi-VN',{maximumFractionDigits:6})}</b>`);
+/* ===== Ngày làm việc ===== */
+function parseVNDate(str){const [d,m,y]=str.split('/').map(Number); if(!d||!m||!y) return null; return new Date(y,m-1,d);}
+$('bdCalc').addEventListener('click',()=>{
+  const f=$('bdFrom').value, to=$('bdTo').value; if(!f||!to){ setResult($('bdOut'),'Chọn đủ 2 ngày.',false); return; }
+  const a=new Date(f+'T00:00:00'), b=new Date(to+'T00:00:00');
+  if(b<a){ setResult($('bdOut'),'Khoảng ngày không hợp lệ (đến < từ).',false); return; }
+  const exclWeekend=$('bdWeekend').checked;
+  const raw=$('bdHoliday').value.trim();
+  const holidays = raw? raw.split(',').map(s=>parseVNDate(s.trim())).filter(Boolean).map(d=>d.toDateString()) : [];
+  let cnt=0, work=0, weekend=0, holiday=0;
+  const dayMs=86400000; for(let t=a.getTime(); t<=b.getTime(); t+=dayMs){ cnt++; const d=new Date(t);
+    const isWeekend=(d.getDay()===0||d.getDay()===6); const isHoliday=holidays.includes(d.toDateString());
+    if(isWeekend){ weekend++; if(exclWeekend) continue; }
+    if(isHoliday){ holiday++; continue; }
+    work++;
+  }
+  setResult($('bdOut'),`Tổng ngày: <b>${cnt}</b> • Ngày làm việc: <b>${work}</b> • Cuối tuần: <span class="warn"><b>${weekend}</b></span> • Nghỉ/lễ loại trừ: <span class="bad"><b>${holiday}</b></span>`);
+  pushHist('bizdays',`${f} → ${to} | work=${work}`,'bdHist');
 });
-$('pctCalc2').addEventListener('click',()=>{
-  const mode=$('pctMode').value, n=parseFloat($('pctBase').value), r=parseFloat($('pctRate').value);
-  if(isNaN(n)||isNaN(r)) return;
-  const v = mode==='inc' ? n*(1+r/100) : n*(1-r/100);
-  setResult($('pctOut2'), `${mode==='inc'?'Tăng':'Giảm'} ${n} theo ${r}% = <b>${v.toLocaleString('vi-VN',{maximumFractionDigits:6})}</b>`);
-});
-$('pctCalc3').addEventListener('click',()=>{
-  const a=parseFloat($('pctA').value), b=parseFloat($('pctB').value);
-  if(isNaN(a)||isNaN(b)||b===0){ setResult($('pctOut3'),'Vui lòng nhập A/B hợp lệ (B ≠ 0).',false); return; }
-  const p=a/b*100;
-  setResult($('pctOut3'), `${a} là <b>${p.toLocaleString('vi-VN',{maximumFractionDigits:6})}%</b> của ${b}`);
-});
+loadHist('bizdays','bdHist');
 
-/* ===== Hoàng đạo Tây (đã sửa chuẩn) ===== */
+/* ===== BMR/TDEE ===== */
+function calcBMR(sex, w, h, age){return sex==='m' ? (10*w + 6.25*h - 5*age + 5) : (10*w + 6.25*h - 5*age - 161);}
+$('bmrCalc').addEventListener('click',()=>{
+  const sex=$('bmrSex').value, age=+$('bmrAge').value, h=+$('bmrH').value, w=+$('bmrW').value, act=+$('bmrAct').value;
+  if(!(age>0&&h>0&&w>0)){ setResult($('bmrOut'),'Vui lòng nhập dữ liệu hợp lệ.',false); return; }
+  const bmr=calcBMR(sex,w,h,age); const tdee=bmr*act;
+  setResult($('bmrOut'),`
+    BMR (Mifflin–St Jeor): <b>${Math.round(bmr).toLocaleString('vi-VN')}</b> kcal/ngày<br>
+    TDEE (mức hiện tại): <b>${Math.round(tdee).toLocaleString('vi-VN')}</b> kcal/ngày<br>
+    Gợi ý: Giảm ~500 kcal → <b>${Math.round(tdee-500).toLocaleString('vi-VN')}</b> • Tăng ~300 kcal → <b>${Math.round(tdee+300).toLocaleString('vi-VN')}</b>
+  `);
+  pushHist('bmr',`${sex==='m'?'Nam':'Nữ'} ${w}kg/${h}cm/${age}t • TDEE≈${Math.round(tdee)}`,'bmrHist');
+});
+loadHist('bmr','bmrHist');
+
+/* ===== Western Zodiac + DOB ===== */
 function westernZodiac(month, day){
-  // Helper: kiểm tra ngày trong khoảng, có xử lý khoảng giao năm (vd Ma Kết 22/12–19/1)
-  const inRange=(m,d, sM,sD, eM,eD)=>{
-    if(sM<eM){ // cùng năm
-      return (m>sM && m<eM) || (m===sM && d>=sD) || (m===eM && d<=eD);
-    }else{ // giao năm
-      return (m> sM || m< eM) || (m===sM && d>=sD) || (m===eM && d<=eD);
-    }
-  };
-  const Z=[
-    {name:"Ma Kết", s:[12,22], e:[1,19]},
-    {name:"Bảo Bình", s:[1,20], e:[2,18]},
-    {name:"Song Ngư", s:[2,19], e:[3,20]},
-    {name:"Bạch Dương", s:[3,21], e:[4,19]},
-    {name:"Kim Ngưu", s:[4,20], e:[5,20]},
-    {name:"Song Tử", s:[5,21], e:[6,20]},
-    {name:"Cự Giải", s:[6,21], e:[7,22]},
-    {name:"Sư Tử", s:[7,23], e:[8,22]},
-    {name:"Xử Nữ", s:[8,23], e:[9,22]},
-    {name:"Thiên Bình", s:[9,23], e:[10,22]},
-    {name:"Bọ Cạp", s:[10,23], e:[11,21]},
-    {name:"Nhân Mã", s:[11,22], e:[12,21]},
-  ];
-  for(const z of Z){ if(inRange(month,day, z.s[0],z.s[1], z.e[0],z.e[1])) return z.name; }
-  // fallback an toàn
-  return "Ma Kết";
+  const inRange=(m,d, sM,sD, eM,eD)=> sM<eM ? ((m>sM&&m<eM)||(m===sM&&d>=sD)||(m===eM&&d<=eD))
+                                         : ((m> sM||m< eM)||(m===sM&&d>=sD)||(m===eM&&d<=eD));
+  const Z=[["Ma Kết",[12,22],[1,19]],["Bảo Bình",[1,20],[2,18]],["Song Ngư",[2,19],[3,20]],["Bạch Dương",[3,21],[4,19]],
+           ["Kim Ngưu",[4,20],[5,20]],["Song Tử",[5,21],[6,20]],["Cự Giải",[6,21],[7,22]],["Sư Tử",[7,23],[8,22]],
+           ["Xử Nữ",[8,23],[9,22]],["Thiên Bình",[9,23],[10,22]],["Bọ Cạp",[10,23],[11,21]],["Nhân Mã",[11,22],[12,21]]];
+  for(const [name,s,e] of Z){ if(inRange(month,day,s[0],s[1],e[0],e[1])) return name; } return "Ma Kết";
 }
-
-/* ===== Sinh nhật (tử vi & hoàng đạo) ===== */
 function zodiacAnimal(chi){const map={Tý:"Chuột",Sửu:"Trâu",Dần:"Hổ",Mão:"Mèo",Thìn:"Rồng",Tỵ:"Rắn",Ngọ:"Ngựa",Mùi:"Dê",Thân:"Khỉ",Dậu:"Gà",Tuất:"Chó",Hợi:"Lợn"};return map[chi]||chi;}
 $('dobCalc').addEventListener('click',()=>{
   const s=$('dobDate').value; const tz=+$('dobTz').value||7;
@@ -569,7 +779,7 @@ $('dobCalc').addEventListener('click',()=>{
     yearCC = ccYear(lunar.year);
     monthCC = ccMonth(lunar.month, lunar.year);
     dayCC   = ccDay(dl.dd, dl.mm, dl.yy);
-    giap = zodiacAnimal(yearCC.split(' ').slice(-1)[0]); // lấy Chi của năm âm
+    giap = zodiacAnimal(yearCC.split(' ').slice(-1)[0]);
   }
   const lunarText = err ? `Không đổi được âm lịch (${err})` :
     `Âm lịch: <b>${String(lunar.day).padStart(2,'0')}/${String(lunar.month).padStart(2,'0')}/${lunar.year}${lunar.leap?' (nhuận)':''}</b>
@@ -581,12 +791,6 @@ $('dobCalc').addEventListener('click',()=>{
   `;
   setResult($('dobOut'), out);
 });
-
-// set ví dụ mặc định cho bạn test nhanh (14/09 -> Xử Nữ)
-(function(){
-  const ex=new Date(1998,8,14); // 14/09/1998
-  $('dobDate').value=`${ex.getFullYear()}-${String(ex.getMonth()+1).padStart(2,'0')}-${String(ex.getDate()).padStart(2,'0')}`;
-})();
 </script>
 </body>
 </html>
