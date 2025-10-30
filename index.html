@@ -70,6 +70,13 @@
   th,td{border:1px solid var(--border);padding:8px;text-align:right}
   th{background:rgba(255,255,255,.04);text-align:center}
   .warn{color:var(--warn)} .ok{color:var(--ok)} .bad{color:var(--bad)}
+  .section-sep{
+  border:none;
+  border-top:1px solid var(--bd);
+  margin:16px 0;
+}
+.tab-panel .box{display:block;} /* đảm bảo block chiếm đủ hàng */
+.section-sep{border:none;border-top:1px solid var(--bd);margin:16px 0}
   /* Icon trước tên tab (áp dụng cho .tab-btn) */
 .tabs .tab-btn{display:inline-flex;align-items:center;gap:8px}
 .tabs .tab-btn .ico{display:inline-flex;width:18px;height:18px;opacity:.9}
@@ -110,12 +117,13 @@
       <button class="tab-btn" data-tab="tab-bmi">BMI</button>
       <button class="tab-btn" data-tab="tab-percent">Phần trăm</button>
       <button class="tab-btn" data-tab="tab-time">Thời gian</button>
-      <button class="tab-btn" data-tab="tab-date">Ngày</button>
+      <button class="tab-btn" data-tab="tab-day">Ngày</button>
       <button class="tab-btn" data-tab="tab-loan">Khoản vay</button>
       <button class="tab-btn" data-tab="tab-age">Tuổi & Countdown</button>
-      <button class="tab-btn" data-tab="tab-bizdays">Ngày làm việc</button>
+      <button class="tab-btn" data-tab="tab-workday">Ngày làm việc</button>
       <button class="tab-btn" data-tab="tab-bmr">BMR / TDEE</button>
       <button class="tab-btn" data-tab="tab-dob">Sinh nhật</button>
+      <button class="tab-btn" data-tab="tab-net">Tốc độ mạng</button>
     </div>
 
     <div class="panel">
@@ -521,6 +529,114 @@
         </div>
       </section>
 
+<!-- ========== Tốc độ mạng ========== -->
+<section id="tab-net" class="tab-panel" hidden>
+  <div class="card">
+    <div class="title">
+      <span class="dot" style="background:#10b981"></span>
+      <h3 style="margin:0">Tính toán tốc độ mạng / thời gian tải</h3>
+    </div>
+
+    <!-- Hàng 1: Tốc độ & kích thước tệp -->
+    <div class="row">
+      <div style="flex:1 1 180px">
+        <label>Tốc độ đường truyền</label>
+        <div class="row" style="gap:8px">
+          <input id="net_speed" type="number" min="0" step="0.01" value="100" style="flex:1">
+          <select id="net_speed_unit" style="width:160px">
+            <option value="Mbps" selected>Mbps (megabit/s)</option>
+            <option value="MBps">MB/s (megabyte/s)</option>
+          </select>
+        </div>
+        <div class="muted small" id="net_speed_hint">100 Mbps ≈ 12.50 MB/s (ước tính)</div>
+      </div>
+
+      <div style="flex:1 1 180px">
+        <label>Kích thước tệp</label>
+        <div class="row" style="gap:8px">
+          <input id="net_size" type="number" min="0" step="0.01" value="1" style="flex:1">
+          <select id="net_size_unit" style="width:160px">
+            <option value="MB" selected>MB</option>
+            <option value="GB">GB</option>
+            <option value="KB">KB</option>
+          </select>
+        </div>
+        <label class="muted small" style="display:flex;align-items:center;gap:8px;margin-top:8px">
+          <input id="net_overhead" type="checkbox"> Tính hao hụt giao thức ~10%
+        </label>
+      </div>
+
+      <div style="align-self:flex-end">
+        <button id="net_calc_btn" class="btn">Tính</button>
+      </div>
+    </div>
+
+    <!-- Kết quả tính thời gian -->
+    <div class="box small" id="net_result">Kết quả sẽ hiển thị ở đây.</div>
+
+    <!-- Hàng 2: Tính ngược theo thời gian mong muốn -->
+    <div class="row" style="margin-top:12px">
+      <div style="flex:1 1 260px">
+        <label>Tính ngược: thời gian mong muốn</label>
+        <div class="row" style="gap:8px">
+          <input id="net_target_time" type="number" min="0" step="1" value="60" style="flex:1">
+          <select id="net_target_unit" style="width:160px">
+            <option value="s" selected>giây</option>
+            <option value="min">phút</option>
+          </select>
+        </div>
+        <div class="muted small">Cần tốc độ bao nhiêu để tải xong tệp trên trong thời gian này?</div>
+      </div>
+      <div style="align-self:flex-end">
+        <button id="net_reverse_btn" class="btn secondary">Tính tốc độ cần thiết</button>
+      </div>
+    </div>
+
+    <!-- ✅ Kết quả tính ngược: đặt NGAY sau khối tính ngược -->
+    <div class="box small" id="net_reverse_result">—</div>
+
+    <!-- Phân cách -->
+    <hr class="section-sep">
+
+    <!-- Đổi đơn vị tốc độ -->
+    <div class="title">
+      <span class="dot" style="background:#3b82f6"></span>
+      <h3 style="margin:0">Đổi đơn vị tốc độ</h3>
+    </div>
+
+    <div class="row">
+      <div style="flex:1 1 180px">
+        <label>Giá trị</label>
+        <input id="rate_val" type="number" step="0.01" min="0" value="100">
+      </div>
+      <div style="flex:1 1 220px">
+        <label>Đơn vị</label>
+        <select id="rate_unit">
+          <!-- bit/s -->
+          <option value="bps">bps (bit/giây)</option>
+          <option value="Kbps">Kbps (kilobit/s)</option>
+          <option value="Mbps" selected>Mbps (megabit/s)</option>
+          <option value="Gbps">Gbps (gigabit/s)</option>
+          <option value="Tbps">Tbps (terabit/s)</option>
+          <!-- byte/s -->
+          <option value="Bps">B/s (byte/giây)</option>
+          <option value="KBps">KB/s (kilobyte/s)</option>
+          <option value="MBps">MB/s (megabyte/s)</option>
+          <option value="GBps">GB/s (gigabyte/s)</option>
+          <option value="TBps">TB/s (terabyte/s)</option>
+        </select>
+      </div>
+      <div style="align-self:flex-end;display:flex;gap:8px;flex-wrap:wrap">
+        <button id="rate_btn" class="btn">Đổi đơn vị</button>
+        <!-- Tuỳ chọn: copy từ "Tốc độ đường truyền" -->
+        <!-- <button id="rate_copy_from_speed" class="btn secondary">Lấy từ “Tốc độ đường truyền”</button> -->
+      </div>
+    </div>
+
+    <div id="rate_out" class="box small">Nhập giá trị & chọn đơn vị, sau đó bấm “Đổi đơn vị”.</div>
+  </div>
+</section>
+
     </div>
   </div>
 </div>
@@ -547,50 +663,83 @@ const ICONS = {
   age:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>`,
   bizdays:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>`,
   bmr:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16M4 14h16M4 8h16"/></svg>`,
-  dob:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 14a4 4 0 1 0-4-4"/></svg>`
+  dob:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 14a4 4 0 1 0-4-4"/></svg>`,
+  default: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>'
 };
 /* === Override một số icon thành emoji trực quan === */
-Object.assign(ICONS, {
-  lunisolar: '🌙',     // Âm–Dương Lịch
-  length:    '📏',     // Độ dài
-  mass:      '⚖️',     // Khối lượng
-  volume:    '🧪',     // Thể tích
-  area:      '📐',     // Diện tích
-  speed:     '🚀',     // Tốc độ
-  pressure:  '🧯',     // Áp suất (có thể đổi thành ⚙️ nếu thích)
-  energy:    '⚡',     // Năng lượng
-  currency:  '💱',     // Tiền tệ
-  temp:      '🌡️',    // Nhiệt độ
-  bmi:       '🧍',     // BMI
-  percent:   '➗',     // Phần trăm
-  time:      '⏱️',    // Thời gian
-  date:      '📅',     // Ngày
-  loan:      '💰',     // Khoản vay
-  age:       '⏳',     // Tuổi & Countdown
-  bizdays:   '🗂️',    // Ngày làm việc
-  bmr:       '🔥',     // BMR/TDEE
-  dob:       '🎂'      // Sinh nhật
-});
+const EMOJI_ICONS = {
+  lunisolar: '🌙',      // Âm–Dương Lịch
+  length:    '📏',      // Độ dài
+  mass:      '⚖️',      // Khối lượng
+  volume:    '🧪',      // Thể tích
+  area:      '🗺️',      // Diện tích
+  speed:     '🚀',      // Tốc độ
+  pressure:  '🧭',      // Áp suất
+  energy:    '⚡',      // Năng lượng
+  currency:  '💱',      // Tiền tệ
+  temp:      '🌡️',      // Nhiệt độ
+  bmi:       '🧍',      // BMI
+  percent:   '📈',      // Phần trăm
+  time:      '⏱️',      // Thời gian
+  day:       '📅',      // Ngày
+  loan:      '💳',      // Khoản vay
+  age:       '🎯',      // Tuổi & Countdown
+  workday:   '🗓️',      // Ngày làm việc
+  bmr:       '🔥',      // BMR/TDEE
+  dob:       '🎂',      // Sinh nhật
+  net:       '📶'       // ✅ Tốc độ mạng (tab mới)
+};
 
-/* Gắn icon vào mỗi nút trong #tabbar */
-(function attachTabIcons(){
+function attachTabIcons(){
   const map = {
-    'tab-lunisolar':'lunisolar','tab-length':'length','tab-mass':'mass','tab-volume':'volume',
-    'tab-area':'area','tab-speed':'speed','tab-pressure':'pressure','tab-energy':'energy',
-    'tab-currency':'currency','tab-temp':'temp','tab-bmi':'bmi','tab-percent':'percent',
-    'tab-time':'time','tab-date':'date','tab-loan':'loan','tab-age':'age',
-    'tab-bizdays':'bizdays','tab-bmr':'bmr','tab-dob':'dob'
+    // map data-tab → key icon (đã có sẵn của bạn, thêm dòng cho net)
+    'tab-lunisolar':'lunisolar',
+    'tab-length':'length',
+    'tab-mass':'mass',
+    'tab-volume':'volume',
+    'tab-area':'area',
+    'tab-speed':'speed',
+    'tab-pressure':'pressure',
+    'tab-energy':'energy',
+    'tab-currency':'currency',
+    'tab-temp':'temp',
+    'tab-bmi':'bmi',
+    'tab-percent':'percent',
+    'tab-time':'time',
+    'tab-day':'day',
+    'tab-loan':'loan',
+    'tab-age':'age',
+    'tab-workday':'workday',
+    'tab-bmr':'bmr',
+    'tab-dob':'dob',
+    'tab-net':'net' // ✅ thêm dòng này
   };
+
+  const getIconHTML = (key) => {
+    if (!key) return ICONS.default;
+    // Ưu tiên emoji nếu có
+    if (EMOJI_ICONS[key]) {
+      // Bọc emoji bằng span để style riêng
+      return `<span class="emj">${EMOJI_ICONS[key]}</span>`;
+    }
+    // Không có emoji → rơi về SVG trong ICONS
+    return ICONS[key] || ICONS.default;
+  };
+
   document.querySelectorAll('#tabbar .tab-btn').forEach(btn=>{
-    const key = map[ btn.getAttribute('data-tab') ] || 'default';
-    if (!btn.querySelector('.ico')) {
+    const key = map[btn.dataset.tab];
+    if(!key) return;
+    if(!btn.querySelector('.ico')){
       const span = document.createElement('span');
       span.className = 'ico';
-      span.innerHTML = ICONS[key];
+      span.innerHTML = getIconHTML(key);
       btn.prepend(span);
     }
   });
-})();
+}
+
+// GỌI SAU KHI TẠO TABBAR:
+document.addEventListener('DOMContentLoaded', attachTabIcons);
 </script>
 
 <script>
@@ -992,8 +1141,152 @@ $('dobCalc').addEventListener('click',()=>{
   `;
   setResult($('dobOut'), out);
 });
+/* ==== Tốc độ mạng: tính toán ==== */
+(function NetSpeedModule(){
+  const $ = (s)=>document.querySelector(s);
+
+  const speedInp   = $('#net_speed');
+  const speedUnit  = $('#net_speed_unit');
+  const sizeInp    = $('#net_size');
+  const sizeUnit   = $('#net_size_unit');
+  const overheadCb = $('#net_overhead');
+  const btnCalc    = $('#net_calc_btn');
+  const out        = $('#net_result');
+
+  const targetTime = $('#net_target_time');
+  const targetUnit = $('#net_target_unit');
+  const btnReverse = $('#net_reverse_btn');
+  const outReverse = $('#net_reverse_result');
+  const hintSpeed  = $('#net_speed_hint');
+
+  // Helpers
+  const KB = 1024, MB = 1024*1024, GB = 1024*1024*1024;
+  function toBytes(value, unit){
+    if(unit==='KB') return value*KB;
+    if(unit==='MB') return value*MB;
+    if(unit==='GB') return value*GB;
+    return value;
+  }
+  function toMbps(value, unit){ // value in Mbps or MB/s → Mbps
+    return (unit==='MBps') ? (value*8) : value;
+  }
+  function toMBps(mbps){ return mbps/8; }
+
+  function fmtTime(sec){
+    if(sec < 60) return `${sec.toFixed(1)} giây`;
+    const m = Math.floor(sec/60);
+    const s = Math.round(sec%60);
+    return `${m} phút ${String(s).padStart(2,'0')} giây`;
+  }
+
+  function updateSpeedHint(){
+    const v = parseFloat(speedInp.value || '0');
+    const u = speedUnit.value;
+    let mbps = toMbps(v, u);
+    hintSpeed.textContent = `${v||0} ${u} ≈ ${toMBps(mbps).toFixed(2)} MB/s (ước tính)`;
+  }
+
+  function calc(){
+    const v = parseFloat(speedInp.value || '0');
+    const u = speedUnit.value;
+    const mbps = toMbps(v, u); // Mbps
+    const fileBytes = toBytes(parseFloat(sizeInp.value || '0'), sizeUnit.value);
+    if(!mbps || !fileBytes){ out.textContent = 'Nhập tốc độ & kích thước hợp lệ.'; return; }
+
+    // Option overhead
+    const effectiveMbps = overheadCb.checked ? mbps*0.9 : mbps;
+
+    // Thời gian tải (s) = (fileBytes * 8) / (Mbps * 1e6)
+    const sec = (fileBytes * 8) / (effectiveMbps * 1e6);
+
+    out.innerHTML =
+      `• Tốc độ hiệu dụng: <b>${effectiveMbps.toFixed(2)} Mbps</b> (${toMBps(effectiveMbps).toFixed(2)} MB/s)`+
+      `<br>• Thời gian tải ước tính: <b>${fmtTime(sec)}</b>`;
+  }
+
+  function reverseCalc(){
+    const fileBytes = toBytes(parseFloat(sizeInp.value || '0'), sizeUnit.value);
+    if(!fileBytes){ outReverse.textContent = 'Nhập kích thước tệp hợp lệ.'; return; }
+    let t = parseFloat(targetTime.value || '0');
+    if(!t || t<=0){ outReverse.textContent = 'Nhập thời gian mong muốn hợp lệ.'; return; }
+    if(targetUnit.value==='min') t *= 60; // phút → giây
+
+    // Mbps cần = (fileBytes * 8) / (t * 1e6)
+    let need = (fileBytes * 8) / (t * 1e6);
+    // Nếu đang tick overhead, tăng thêm ~11.11% để bù (vì 90% hiệu dụng → chia 0.9)
+    if(overheadCb.checked) need /= 0.9;
+
+    outReverse.innerHTML =
+      `• Cần tối thiểu: <b>${need.toFixed(2)} Mbps</b> (${toMBps(need).toFixed(2)} MB/s) để tải xong trong ${fmtTime(t)}.`;
+  }
+
+  // Bind
+  ['input','change'].forEach(ev=>{
+    speedInp.addEventListener(ev, updateSpeedHint);
+    speedUnit.addEventListener(ev, updateSpeedHint);
+  });
+  btnCalc.addEventListener('click', calc);
+  btnReverse.addEventListener('click', reverseCalc);
+
+  // Init
+  updateSpeedHint();
+})();
+/* ==== Đổi đơn vị tốc độ (Mbps ⇄ MB/s …) ==== */
+(function NetRateConverter(){
+  const $  = s => document.querySelector(s);
+  const v  = $('#rate_val');
+  const u  = $('#rate_unit');
+  const bt = $('#rate_btn');
+  const out= $('#rate_out');
+
+  // Bảng quy đổi về "bps" (bit/giây).
+  // Lưu ý: 1 B/s = 8 bps; dùng SI (1 K = 1e3, 1 M = 1e6, …)
+  const FACTOR_TO_BPS = {
+    bps:  1,
+    Kbps: 1e3,
+    Mbps: 1e6,
+    Gbps: 1e9,
+    Tbps: 1e12,
+    Bps:  8,
+    KBps: 8e3,
+    MBps: 8e6,
+    GBps: 8e9,
+    TBps: 8e12
+  };
+
+  const LABELS = {
+    bps:'bps (bit/s)', Kbps:'Kbps', Mbps:'Mbps', Gbps:'Gbps', Tbps:'Tbps',
+    Bps:'B/s (byte/s)', KBps:'KB/s', MBps:'MB/s', GBps:'GB/s', TBps:'TB/s'
+  };
+
+  function fmt(n){ return Number(n).toLocaleString(undefined,{maximumFractionDigits:4}); }
+
+  function convert(){
+    const val = parseFloat(v.value||'0');
+    const unit= u.value;
+    if(!val || val<0){ out.textContent = 'Nhập giá trị hợp lệ.'; return; }
+
+    // đổi sang bps
+    const bps = val * FACTOR_TO_BPS[unit];
+
+    // sinh ra tất cả các đơn vị khác
+    const entries = Object.keys(FACTOR_TO_BPS).map(k=>{
+      const value = bps / FACTOR_TO_BPS[k];
+      return `<li><b>${fmt(value)}</b> ${LABELS[k]}</li>`;
+    }).join('');
+
+    out.innerHTML =
+      `<div class="muted">Kết quả quy đổi tương đương:</div>`+
+      `<ul style="margin:8px 0 0 18px;line-height:1.7">${entries}</ul>`;
+  }
+
+  bt.addEventListener('click', convert);
+  v.addEventListener('keydown', e => { if(e.key==='Enter') convert(); });
+
+  // Gợi ý: tự động chạy nếu bạn muốn cập nhật tức thời khi đổi unit
+  u.addEventListener('change', convert);
+})();
+
 </script>
 </body>
 </html>
-
-
